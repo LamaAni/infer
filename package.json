@@ -1,6 +1,6 @@
 {
   "name": "@LamaAni/zcli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Yet another cli command line tool; with minimal definitions, colors and proper help prints.",
   "main": "src/index.js",
   "scripts": {
