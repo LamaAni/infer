@@ -73,11 +73,11 @@ cli.set('special', somethingOptions, {
   }
 })
 
-// cli.set('do something regular', somethingOptions, {
-//   action(args) {
-//     console.log('regular ' + args.what + ' ' + args.to_do)
-//   }
-// })
+cli.set('do something regular', somethingOptions, {
+  action(args) {
+    console.log('regular ' + args.what + ' ' + args.to_do)
+  }
+})
 
 // ---------------------------------
 

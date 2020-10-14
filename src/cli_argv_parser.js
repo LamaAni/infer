@@ -1,4 +1,4 @@
-const StringSet = require('../../common/collections/StringSet')
+const StringSet = require('./collections/StringSet')
 
 function string_to_argv(cmd) {
   let in_context = null

@@ -1,4 +1,4 @@
-const { Pattern } = require('../../common/textops/text_matching')
+const { Pattern } = require('./textops/text_matching')
 
 /**
  * @typedef {import('./Cli')} Cli

@@ -1,6 +1,6 @@
 const events = require('events')
 const assert = require('assert')
-const levenshtein = require('../../common/textops/levenshtein')
+const levenshtein = require('./textops/levenshtein')
 const cli_help_formatter = require('./cli_help_formatter')
 const { get_possible_commands, string_to_argv } = require('./cli_argv_parser')
 

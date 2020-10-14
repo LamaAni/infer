@@ -5,7 +5,7 @@ const {
   cli_help_formatter,
   print_cli_argument_aliases
 } = require('./cli_help_formatter')
-const ColumnPrinter = require('../../common/textops/column_printer')
+const ColumnPrinter = require('./textops/column_printer')
 const CliArgument = require('./CliArgument')
 
 const DEFUALT_PARSE_OPTIONS = {

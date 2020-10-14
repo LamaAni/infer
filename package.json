@@ -1,0 +1,34 @@
+{
+  "name": "@LamaAni/zcli",
+  "version": "0.0.1",
+  "description": "Yet another cli command line tool; with minimal definitions, colors and proper help prints.",
+  "main": "src/Cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LamaAni/ZCli.git"
+  },
+  "keywords": [
+    "cli",
+    "cli-tool",
+    "command",
+    "line",
+    "click"
+  ],
+  "author": "Zav Shotan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LamaAni/ZCli/issues"
+  },
+  "homepage": "https://github.com/LamaAni/ZCli#readme",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "extend": "^3.0.2",
+    "jest": "^26.5.3"
+  }
+}

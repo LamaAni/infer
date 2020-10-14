@@ -9,10 +9,9 @@ zmake project, so it can be used in others.
 
 Cli tool name will be zlib-cli (WIP)
 
-### NOTE
+## Status
 
-Currently replace `zlib-cli` with `.`, since this is
-an in project constructor.
+This tool is in `BETA` and should be used with care.
 
 ## TL;DR
 

@@ -1,6 +1,6 @@
-const ColumnPrinter = require('../../common/textops/column_printer')
-const wrap = require('../../common/textops/wrap_colored_text')
-const paint_with_color = require('../../common/textops/paint_with_color')
+const ColumnPrinter = require('./textops/column_printer')
+const wrap = require('./textops/wrap_colored_text')
+const paint_with_color = require('./textops/paint_with_color')
 
 /**
  * @typedef {import('./CliArgument')} CliArgument
