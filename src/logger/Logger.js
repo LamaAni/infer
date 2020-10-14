@@ -1,5 +1,4 @@
 const colors = require('colors')
-const { thisTypeAnnotation, throwStatement } = require('@babel/types')
 const extend = require('extend')
 const moment = require('moment')
 const { type } = require('os')
