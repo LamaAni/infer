@@ -185,3 +185,20 @@ $> 48
 # myapp config set [command with dots] [named/flag] [val/empty to remove]
 myapp config set run.special.case arg 42
 ```
+
+# Contribution
+
+Are welcome, please post issues or PR's if needed.
+
+# Implementations still missing:
+
+Add an issue (or better submit PR) if you need these.
+
+1. XCom
+1. Examples (other than TL;DR)
+
+# Licence
+
+Copyright ©
+`Zav Shotan` and other [contributors](https://github.com/LamaAni/ZCli/graphs/contributors).
+It is free software, released under the MIT licence, and may be redistributed under the terms specified in `LICENSE`.
