@@ -16,3 +16,5 @@ class LogData {
     this.level = level
   }
 }
+
+module.exports = LogData
