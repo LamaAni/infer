@@ -4,11 +4,6 @@ This engine allows for the efficient, object centric auto generated
 command line interface, which allows one to save and load
 the configuration from a file.
 
-Once more stable, this cli engine will be separated from the
-zmake project, so it can be used in others.
-
-Cli tool name will be zlib-cli (WIP)
-
 ## Status
 
 This tool is in `ALPHA` and should be used with care.

@@ -14,14 +14,14 @@ const LOG_DEFAULT_OPTIONS = {
     info: ' .'.gray,
     error: ' !'.red,
     fatal: ' !'.red,
-    debug: ' *'.cyan
+    debug: ' *'.cyan,
   },
   /**
    * @type {object} The log formatting options.
    */
   format: {
-    symbol_min_length: 3
-  }
+    symbol_min_length: 3,
+  },
 }
 
 /**
@@ -59,7 +59,7 @@ global.zlog_log_mode = () =>
 
 let LAST_CLI_TOPIC = null
 
-const ZMAKE_LOG_MODES = {
+const LOGGER_MODES = {
   cli: (log, data) => {
     if (
       __levelToNumeric(global.zlog_log_level()) > __levelToNumeric(data.level)
@@ -80,28 +80,16 @@ const ZMAKE_LOG_MODES = {
 
     console.log(data.symbol + data.message)
   },
-  server: (log, data) => {
-    if (global.__logger == null) {
-      global.__logger = require('pino')({
-        level: global.zlog_log_level()
-      })
-    }
-
-    global.__logger[data.level]({
-      message: data.message,
-      name: data.topic
-    })
-  }
 }
 
 /**
- * Log for zmake, used for generating a global log with a print.
+ * A general logger class with extra formatting.
  */
-class ZMakeLog {
+class Logger {
   /**
    * Creates a logger.
    * @param {string} topic the current log topic.
-   * @param {ZMAKE_LOG_DEFAULT_OPTIONS} options
+   * @param {LOGGER_DEFAULT_OPTIONS} options
    */
   constructor(topic = '', options = LOG_DEFAULT_OPTIONS) {
     this.topic = topic
@@ -111,11 +99,11 @@ class ZMakeLog {
   /**
    * Creates a new log object.
    * @param {string} topic the current log topic.
-   * @param {ZMAKE_LOG_DEFAULT_OPTIONS} options
-   * @return {ZMakeLog} the log object.
+   * @param {LOGGER_DEFAULT_OPTIONS} options
+   * @return {Logger} the log object.
    */
   static on(topic, options = LOG_DEFAULT_OPTIONS) {
-    return new ZMakeLog(topic, options)
+    return new Logger(topic, options)
   }
 
   /**
@@ -145,7 +133,7 @@ class ZMakeLog {
   }
 
   /**
-   * Log the zmake log data to the underlining logger.
+   * print out the logger with topics.
    * @param {LogData} data
    */
   __log(data) {
@@ -161,8 +149,8 @@ class ZMakeLog {
     data.message = data.message == null ? '' : data.message
     data.symbol = this.__cleanupSymbol(data.symbol)
 
-    let logFunc = ZMAKE_LOG_MODES[global.zlog_log_mode()]
-    if (logFunc == null) logFunc = ZMAKE_LOG_MODES.cli
+    let logFunc = LOGGER_MODES[global.zlog_log_mode()]
+    if (logFunc == null) logFunc = LOGGER_MODES.cli
 
     logFunc(this, data)
   }
@@ -172,7 +160,7 @@ class ZMakeLog {
       level: 'info',
       message: msg || '',
       topic: topic,
-      symbol: symbol
+      symbol: symbol,
     })
   }
 
@@ -189,7 +177,7 @@ class ZMakeLog {
       level: 'debug',
       message: (msg || '').gray,
       topic: topic,
-      symbol: symbol
+      symbol: symbol,
     })
   }
 
@@ -198,7 +186,7 @@ class ZMakeLog {
       level: 'trace',
       message: (msg || '').gray,
       topic: topic,
-      symbol: symbol
+      symbol: symbol,
     })
   }
 
@@ -207,7 +195,7 @@ class ZMakeLog {
       level: 'warn',
       message: (msg || '').yellow,
       topic: topic,
-      symbol: symbol
+      symbol: symbol,
     })
   }
 
@@ -216,7 +204,7 @@ class ZMakeLog {
       level: 'error',
       message: (msg || '').red,
       topic: topic,
-      symbol: symbol
+      symbol: symbol,
     })
   }
 
@@ -225,9 +213,9 @@ class ZMakeLog {
       level: 'fatal',
       message: (msg || '').red,
       topic: topic,
-      symbol: symbol
+      symbol: symbol,
     })
   }
 }
 
-module.exports = ZMakeLog
+module.exports = Logger
