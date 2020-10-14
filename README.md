@@ -11,7 +11,7 @@ Cli tool name will be zlib-cli (WIP)
 
 ## Status
 
-This tool is in `BETA` and should be used with care.
+This tool is in `ALPHA` and should be used with care.
 
 ## TL;DR
 
