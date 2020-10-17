@@ -52,6 +52,30 @@ const get_env_log_formatter = () =>
     ? 'cli'
     : process.env['LOGGING_FORMATTER']
 
+/**
+ * The default print message method (uses console)
+ * @param {string} msg The message to print
+ * @param {string|number} log_level The log level
+ */
+function logging_printer(msg, log_level = 'INFO') {
+  throw 'Internal default type, not an implementation of a method'
+}
+
+/**
+ * The default print message method (uses console)
+ * @param {string} msg The message to print
+ * @param {string|number} log_level The log level, defaults to INFO
+ */
+function print_to_console(msg, log_level = 'INFO') {
+  log_level = LOG_LEVELS.get_value(log_level)
+  if (log_level <= LOG_LEVELS.TRACE) console.trace(msg)
+  else if (log_level <= LOG_LEVELS.DEBUG) console.debug(msg)
+  else if (log_level <= LOG_LEVELS.INFO) console.info(msg)
+  else if (log_level <= LOG_LEVELS.WARN) console.warn(msg)
+  else if (log_level <= LOG_LEVELS.ERROR) console.error(msg)
+  else console.error(msg)
+}
+
 const LOGGER_DEFAULT_OPTIONS = {
   log_level_colors: {
     TRACE: 'gray',
@@ -84,6 +108,11 @@ const LOGGER_DEFAULT_OPTIONS = {
    * @type {string|number} The logging level.
    */
   level: 'info',
+  /**
+   * @type {logging_printer} The print method to use when printing to the device.
+   * Override this method to allow for custom printing (to any device)
+   */
+  print: print_to_console,
 }
 
 function colorize_by_level(val, level, dict) {
@@ -96,7 +125,7 @@ let LAST_CLI_TOPIC = null
 /**
  * A collection of built in logging formatters.
  */
-const LOGGING_PRINTERS = {
+const LOGGING_FORMATTERS = {
   cli:
     /**
      * @param {Logger} logger The logger
@@ -141,12 +170,7 @@ const LOGGING_PRINTERS = {
       if (logger.options.show_timestamp !== false)
         msg = `[${moment().format('YYYYMMDD hh:mm:ss')}]${msg}`
 
-      if (log_level <= LOG_LEVELS.TRACE) console.trace(msg)
-      else if (log_level <= LOG_LEVELS.DEBUG) console.debug(msg)
-      else if (log_level <= LOG_LEVELS.INFO) console.info(msg)
-      else if (log_level <= LOG_LEVELS.WARN) console.warn(msg)
-      else if (log_level <= LOG_LEVELS.ERROR) console.error(msg)
-      else console.error(msg)
+      return msg
     },
 }
 
@@ -227,6 +251,15 @@ class Logger {
   }
 
   /**
+   * Print to the underlining device or stream
+   * @param {string} msg The message
+   * @param {string|number} log_level The logging level
+   */
+  print(msg, log_level = 'INFO') {
+    this.options.print(msg, log_level || 'INFO')
+  }
+
+  /**
    * print out the logger with topics.
    * @param {LogData} data
    */
@@ -239,9 +272,9 @@ class Logger {
     data.message = data.message == null ? '' : data.message
     data.symbol = this.__cleanupSymbol(data.symbol)
 
-    let logFunc = LOGGING_PRINTERS[this.formatter] || LOGGING_PRINTERS.cli
+    let formatter = LOGGING_FORMATTERS[this.formatter] || LOGGING_FORMATTERS.cli
 
-    logFunc(this, data)
+    this.print(formatter(this, data), data.level)
   }
 
   info(msg, symbol = null, topic = null) {

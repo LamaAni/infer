@@ -10,7 +10,7 @@ const { print_cli_argument_aliases } = require('./cli_help_formatter')
 class CliConfigCommand extends CliCommandOptions {
   static get ConfigArgumentTypes() {
     return CliArgument.ArgumentTypes.filter(
-      t => t != 'positional' && t != 'transfer' && t != 'overflow'
+      (t) => t != 'positional' && t != 'transfer' && t != 'overflow'
     )
   }
   /**
@@ -77,37 +77,37 @@ class CliConfigCommand extends CliCommandOptions {
       type: {
         description:
           'Filter by argument type, one of ' +
-          valid_arg_types.map(type => type.yellow).join(', '),
-        parse: val => {
+          valid_arg_types.map((type) => type.yellow).join(', '),
+        parse: (val) => {
           if (val != null && val.length > 0)
             assert(
-              valid_arg_types.some(t => val == t),
+              valid_arg_types.some((t) => val == t),
               'Argument type value must be one of ' +
-                valid_arg_types.map(type => type.yellow).join(', ')
+                valid_arg_types.map((type) => type.yellow).join(', ')
             )
           return val
-        }
+        },
       },
       section_filter: {
         type: 'positional',
         require: false,
         default: '*',
         description:
-          'A list filtering pattern, can have wildcards */? or re::[pattern]'
+          'A list filtering pattern, can have wildcards */? or re::[pattern]',
       },
       argument_filter: {
         type: 'positional',
         require: false,
         default: '*',
         description:
-          'A list filtering pattern, can have wildcards */? or re::[pattern]'
-      }
+          'A list filtering pattern, can have wildcards */? or re::[pattern]',
+      },
     }
 
     // adding the internal commands
     this.selfCli.set('list', list_arguments, {
-      action: options => this.list(options),
-      description: 'Lists the configuration options'
+      action: (options) => this.list(options),
+      description: 'Lists the configuration options',
     })
 
     this.selfCli.set(
@@ -118,19 +118,19 @@ class CliConfigCommand extends CliCommandOptions {
           type: 'named',
           aliases: ['f'],
           default: 'yaml',
-          parse: val => {
+          parse: (val) => {
             assert(
               val == 'yaml' || val == 'json',
               "The format type must be 'yaml' or 'json'"
             )
             return val
           },
-          description: 'The output format type [yaml/json](default: yaml)'
-        }
+          description: 'The output format type [yaml/json](default: yaml)',
+        },
       },
       {
-        action: options => this.print(options),
-        description: 'Prints the current configuration options'
+        action: (options) => this.print(options),
+        description: 'Prints the current configuration options',
       }
     )
 
@@ -139,20 +139,20 @@ class CliConfigCommand extends CliCommandOptions {
       {
         section: {
           type: 'positional',
-          description: 'The section, cannot have wildcards'
+          description: 'The section, cannot have wildcards',
         },
         argument: {
           type: 'positional',
-          description: 'the argument, cannot have wildcards'
+          description: 'the argument, cannot have wildcards',
         },
         value: {
           type: 'positional',
-          description: 'the value to set'
-        }
+          description: 'the value to set',
+        },
       },
       {
-        action: options => this.set(options),
-        description: 'Gets aF configuration value from storage'
+        action: (options) => this.set(options),
+        description: 'Gets aF configuration value from storage',
       }
     )
     this.selfCli.set(
@@ -160,16 +160,16 @@ class CliConfigCommand extends CliCommandOptions {
       {
         section: {
           type: 'positional',
-          description: 'The section, cannot have wildcards'
+          description: 'The section, cannot have wildcards',
         },
         argument: {
           type: 'positional',
-          description: 'the argument, cannot have wildcards'
-        }
+          description: 'the argument, cannot have wildcards',
+        },
       },
       {
-        action: options => this.get(options),
-        description: 'Sets a configuration value in storage'
+        action: (options) => this.get(options),
+        description: 'Sets a configuration value in storage',
       }
     )
   }
@@ -210,7 +210,7 @@ class CliConfigCommand extends CliCommandOptions {
 
     if (
       argument_filter != null &&
-      !ca.names.some(n => Pattern.test(argument_filter, n))
+      !ca.names.some((n) => Pattern.test(argument_filter, n))
     )
       return false
 
@@ -223,7 +223,7 @@ class CliConfigCommand extends CliCommandOptions {
     /** @type {Object<string,CliCommandOptions>} */
     const filtered_commands = {}
     Object.keys(this.selfCli.Context.commands)
-      .filter(command_text =>
+      .filter((command_text) =>
         Pattern.test(
           section_filter || '*',
           this.__commandTextToSection(
@@ -232,11 +232,11 @@ class CliConfigCommand extends CliCommandOptions {
         )
       )
       .sort()
-      .forEach(command_text => {
+      .forEach((command_text) => {
         const command = this.selfCli.Context.commands[command_text]
         if (command_text.startsWith(this.selfCli.__composeFullCommand())) return
         if (
-          command.arguments.some(ca =>
+          command.arguments.some((ca) =>
             this.__match_argument(ca, argument_filter || '*', type)
           )
         )
@@ -260,17 +260,17 @@ class CliConfigCommand extends CliCommandOptions {
     const pr = new ColumnPrinter([1, 30, 30, 30, 50])
     pr.append(
       ...['', 'Section', 'Argument', 'Env. Variable', 'Description'].map(
-        title => title.gray.underline
+        (title) => title.gray.underline
       )
     )
 
-    Object.keys(filtered_commands).forEach(command_text => {
+    Object.keys(filtered_commands).forEach((command_text) => {
       const command = filtered_commands[command_text]
       command.arguments
-        .filter(ca =>
+        .filter((ca) =>
           this.__match_argument(ca, options.argument_filter, options.type)
         )
-        .forEach(ca => {
+        .forEach((ca) => {
           pr.append(
             '',
             this.__commandTextToSection(
@@ -285,14 +285,14 @@ class CliConfigCommand extends CliCommandOptions {
         })
     })
 
-    console.log()
-    console.log(
+    this.selfCli.logger.print()
+    this.selfCli.logger.print(
       `To set/get a configuration value: ${this.selfCli.Context.name.magenta} ${
         this.selfCli.__composeFullCommand().cyan
       } ` + 'get/set'.yellow
     )
-    console.log()
-    console.log(pr.print())
+    this.selfCli.logger.print()
+    this.selfCli.logger.print(pr.print())
   }
 
   print(options) {
@@ -306,7 +306,7 @@ class CliConfigCommand extends CliCommandOptions {
         process.stdout.write(
           jsyaml.dump(config, {
             indent: 2,
-            skipInvalid: true
+            skipInvalid: true,
           })
         )
         break
@@ -332,15 +332,15 @@ class CliConfigCommand extends CliCommandOptions {
         : this.selfCli.Context.commands[command_text]
 
     if (command == null && print_did_you_mean) {
-      console.error('Could not find section: ' + section.cyan)
+      this.selfCli.logger.error('Could not find section: ' + section.cyan)
       const suggestions = this.selfCli.Context.findSuggestions(
         this.__sectionToCommandText(section)
       )
-        .map(c => this.__commandTextToSection(c))
-        .filter(s => s.trim() != '')
+        .map((c) => this.__commandTextToSection(c))
+        .filter((s) => s.trim() != '')
 
       if (suggestions.length > 0)
-        console.error('Did you mean?\n\t'.green + suggestions[0].cyan)
+      this.selfCli.logger.error('Did you mean?\n\t'.green + suggestions[0].cyan)
     }
     return command
   }
@@ -352,10 +352,10 @@ class CliConfigCommand extends CliCommandOptions {
    */
   __find_matching_arguments(command, argument) {
     return command.arguments
-      .filter(ca =>
-        CliConfigCommand.ConfigArgumentTypes.some(type => type == ca.type)
+      .filter((ca) =>
+        CliConfigCommand.ConfigArgumentTypes.some((type) => type == ca.type)
       )
-      .filter(ca => ca.canBeStored && ca.matches(argument))
+      .filter((ca) => ca.canBeStored && ca.matches(argument))
   }
 
   /**
@@ -368,12 +368,12 @@ class CliConfigCommand extends CliCommandOptions {
 
     let args = this.__find_matching_arguments(command, options.argument)
     if (args.length == 0) {
-      console.error('No arguments match ' + options.argument.yellow)
+      this.selfCli.logger.error('No arguments match ' + options.argument.yellow)
       return null
     }
 
     // reset to the default values.
-    await Promise.all(args.map(ca => ca.reset()))
+    await Promise.all(args.map((ca) => ca.reset()))
 
     /** @type {Object<string,any>} */
     const config_section = config[options.section]
@@ -381,21 +381,21 @@ class CliConfigCommand extends CliCommandOptions {
     /**
      * @param {CliArgument} ca
      */
-    const get_argument_value = ca => {
+    const get_argument_value = (ca) => {
       if (config_section == null) return ca.value
       return config_section[ca.name] || ca.value
     }
 
-    args = args.map(ca => {
+    args = args.map((ca) => {
       return { argument: ca, value: get_argument_value(ca) }
     })
 
     if (args.length > 1) {
-      console.log('multiple arguments match:')
-      args.forEach(a => {
-        console.log(`${a.ca.name}: ${a.value | ''}`)
+      this.selfCli.logger.print('multiple arguments match:')
+      args.forEach((a) => {
+        this.selfCli.logger.print(`${a.ca.name}: ${a.value | ''}`)
       })
-    } else console.log(args[0].value || '')
+    } else this.selfCli.logger.print(args[0].value || '')
     return args
   }
 
@@ -406,13 +406,13 @@ class CliConfigCommand extends CliCommandOptions {
 
     let args = this.__find_matching_arguments(command, options.argument)
     if (args.length == 0) {
-      console.error('No arguments match ' + options.argument.yellow)
+      this.selfCli.logger.error('No arguments match ' + options.argument.yellow)
       return null
     }
 
     // checking values
     if (!args.length > 1) {
-      console.error(
+      this.selfCli.logger.error(
         'Error:'.red +
           'Multiple arguments matched to ' +
           options.argument.yellow
@@ -424,7 +424,7 @@ class CliConfigCommand extends CliCommandOptions {
     if (arg.type == 'flag') {
       options.value = options.value.trim().toLowerCase()
       if (options.value != 'false' && options.value != 'true') {
-        console.error(
+        this.selfCli.logger.error(
           'Error: '.red + 'Flag values must be either true or false'
         )
         return null
@@ -455,15 +455,15 @@ class CliConfigCommand extends CliCommandOptions {
     const config = this.__read_config()
     if (config == null) return // nothing to do.
 
-    Object.keys(config).forEach(section => {
+    Object.keys(config).forEach((section) => {
       const command = this.__find_section_command(section)
       if (command == null) return
       const values = config[section]
       if (values == null) return
-      Object.keys(values).forEach(argument => {
+      Object.keys(values).forEach((argument) => {
         command.arguments
-          .filter(ca => ca.matches(argument))
-          .forEach(ca => {
+          .filter((ca) => ca.matches(argument))
+          .forEach((ca) => {
             ca.default = values[argument]
           })
       })
@@ -479,11 +479,11 @@ class CliConfigCommand extends CliCommandOptions {
       type
     )
 
-    Object.keys(filtered_commands).forEach(command_text => {
+    Object.keys(filtered_commands).forEach((command_text) => {
       const command = filtered_commands[command_text]
       command.arguments
-        .filter(ca => this.__match_argument(ca, argument_filter, type))
-        .forEach(ca => {
+        .filter((ca) => this.__match_argument(ca, argument_filter, type))
+        .forEach((ca) => {
           ca.reset()
           const section = this.__commandTextToSection(
             command_text.length == 0 ? this.selfCli.Context.name : command_text

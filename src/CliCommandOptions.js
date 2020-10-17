@@ -40,6 +40,11 @@ class CliCommandOptions {
      * @type {boolean} If true then inherit all parent named options.
      */
     this.inheritParentNamedOptions = true
+
+    /**
+     * @type {Logger} The underlining logger
+     */
+    this.logger = new Logger()
   }
 
   /**
@@ -83,7 +88,7 @@ class CliCommandOptions {
 
     const args_by_name = {}
     // all fields which are not methods.
-    let all_keys = Object.keys(obj).filter(k => typeof obj[k] != 'function')
+    let all_keys = Object.keys(obj).filter((k) => typeof obj[k] != 'function')
 
     // filter out non markers. (only in case the object is a raw value obj)
     let argument_marker = CliCommandOptions.CLI_CONFIG_OPTION_MARKER
@@ -91,14 +96,14 @@ class CliCommandOptions {
       // this is an object.
       obj.__proto__.constructor.name != 'Object' ||
       // don't mix __$ and regulars.
-      all_keys.some(k => k.startsWith(argument_marker))
+      all_keys.some((k) => k.startsWith(argument_marker))
     ) {
-      all_keys = all_keys.filter(k => k.startsWith(argument_marker))
+      all_keys = all_keys.filter((k) => k.startsWith(argument_marker))
     }
     // no need for an argument marker.
     else argument_marker = null
 
-    all_keys.forEach(k => {
+    all_keys.forEach((k) => {
       let field_name = k
       if (argument_marker != null) field_name = k.substr(argument_marker.length)
 

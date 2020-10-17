@@ -13,7 +13,7 @@ This tool is in `ALPHA` and should be used with care.
 In the short version, to define a cli:
 
 ```javascript
-const Cli = require('zlib-cli')
+const Cli = require('@lamaani/zcli').Cli
 
 const cli = new Cli('myapp')
 const myrunner = new MyRunner()
@@ -24,7 +24,7 @@ cli.set('run', {}, { description: 'stuff to run' })
 // the command: myapp run class
 cli.set('run class', myrunner, {
   description: 'Get options from a class',
-  action: options => myrunner.run(options)
+  action: (options) => myrunner.run(options),
 })
 
 cli.set(
@@ -32,24 +32,24 @@ cli.set(
   {
     arg: {
       type: 'named',
-      aliases: ['a']
+      aliases: ['a'],
     },
     flag: {
-      type: 'flag'
-    }
+      type: 'flag',
+    },
   },
   {
     description: 'run an anonymous action.',
-    action: options => console.log(JSON.stringify(options, null, 2))
+    action: (options) => console.log(JSON.stringify(options, null, 2)),
   }
 )
 
 cli
   .parse()
-  .then(rslt => {
+  .then((rslt) => {
     if (typeof rslt == 'number' && rslt > 0) process.exit(rslt)
   })
-  .catch(err => {
+  .catch((err) => {
     console.error(err)
     process.exit(1)
   })
@@ -58,7 +58,7 @@ cli
 Where MyRunner is,
 
 ```javascript
-/** @typedef {import('zlib-cli/CliArgument')} CliArgument */
+/** @typedef {import('ZCli').CliArgument} CliArgument */
 
 class MyRunner {
   constructor() {
@@ -71,8 +71,8 @@ class MyRunner {
       type: 'named',
       description: 'Some cli argument',
       aliases: ['a'],
-      parse: val => val,
-      default: 'will be set to arg'
+      parse: (val) => val,
+      default: 'will be set to arg',
     }
     /** Will be set to this value */
     this.arg = null
@@ -90,14 +90,13 @@ my_app --help
 
 ## Commands
 
-In `zlib-cli`, all commands are a sentence
-with added parse arguments, an example for a simple command would be,
+In `ZCli`, all commands are constructed as sentences, an example for a simple command would be,
 
 ```
 myapp run special case positional_1 --flag --arg val positional_2
 ```
 
-This command, when parsed, is translated to:
+This above command would be translated to,
 
 ```javascript
 command_name='myapp run special case'
@@ -111,15 +110,19 @@ command_options={
 ```
 
 Named arguments or flags are not position dependent, therefore, the
-following is equivalent,
+following is equivalent to the above,
 
 ```
 myapp --flag run special --arg val case positional_1 positional_2
 ```
 
-There are no combined flags, i.e. no `-wWyDt`. Single letter arguments or
-aliases are automatically parsed as `-a` and multi letter is automatically parsed
-as `--arg`.
+### Limitations
+
+1. There are no combined flags, i.e. no `-wWyDt`.
+1. Arguments are parsed only as,
+   - Single letters: `a` -> `-a`
+   - Multi letters: `arg` -> `--arg`
+1. Positional arguments are only allowed for the final command, otherwise all positional arguments are parsed as commands.
 
 ### Arguments
 
@@ -154,15 +157,16 @@ as `--arg`.
 To add a file configuration manager,
 
 ```javascript
-const cli = require('zlib-cli')
+const cli = new (require('ZCli').Cli)()
 const fs = require('fs')
 const CliConfigCommand = require('zlib-cli/CliConfigCommand')
+
 new CliConfigCommand(
-  cli,
+  Cli,
   // command to load the configuration as a javascript object.
   () => require('./my_config.json'),
   // command to save the configuration to file.
-  config => {
+  (config) => {
     fs.writeFileSync('./my_config.json', JSON.stringify(config))
   }
 )

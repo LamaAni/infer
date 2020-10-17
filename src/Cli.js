@@ -3,10 +3,11 @@ const CliCommandOptions = require('./CliCommandOptions')
 const CliContext = require('./CliContext')
 const {
   cli_help_formatter,
-  print_cli_argument_aliases
+  print_cli_argument_aliases,
 } = require('./cli_help_formatter')
 const ColumnPrinter = require('./textops/column_printer')
 const CliArgument = require('./CliArgument')
+const Logger = require('./logger/Logger')
 
 const DEFUALT_PARSE_OPTIONS = {
   /** If true then invoke the command */
@@ -42,7 +43,7 @@ const DEFUALT_PARSE_OPTIONS = {
   /**
    * The exit code to use on error. If -1 ignore.
    */
-  exit_code_on_error: 2
+  exit_code_on_error: 2,
 }
 
 /**
@@ -85,6 +86,14 @@ class Cli {
   }
   set Options(val) {
     return this.set(this.Command, null, val)
+  }
+
+  /**
+   * @type {Logger} The underlining logger.
+   * You can change the logger in Options.
+   */
+  get logger() {
+    return this.Options.logger || console
   }
 
   /**
@@ -144,7 +153,7 @@ class Cli {
       extend(command_options, options)
     }
 
-    ;(Array.isArray(args) ? args : [args]).forEach(args_obj => {
+    ;(Array.isArray(args) ? args : [args]).forEach((args_obj) => {
       command_options.loadFromObject(args_obj)
     })
 
@@ -171,7 +180,7 @@ class Cli {
     const command_options = this.Context.getOptions(command)
     Array.isArray(args)
       ? args
-      : [args].forEach(args_obj => {
+      : [args].forEach((args_obj) => {
           command_options.loadFromObject(args_obj)
         })
     return Array.from(command_options.arguments)
@@ -239,8 +248,8 @@ class Cli {
         for (const p of Object.values(parents)) {
           if (!p.inheritParentNamedOptions) break
           p.arguments
-            .filter(ca => ca.type == 'named')
-            .forEach(ca => options.arguments.push(ca))
+            .filter((ca) => ca.type == 'named')
+            .forEach((ca) => options.arguments.push(ca))
         }
       }
 
@@ -270,7 +279,7 @@ class Cli {
     return {
       command,
       options,
-      unmatched
+      unmatched,
     }
   }
 
@@ -281,9 +290,9 @@ class Cli {
    */
   __parseAssignArguments(options, argv) {
     // all assignment collections.
-    const positional = options.arguments.filter(ca => ca.type == 'positional')
-    const named = options.arguments.filter(ca => ca.type == 'named')
-    const flags = options.arguments.filter(ca => ca.type == 'flag')
+    const positional = options.arguments.filter((ca) => ca.type == 'positional')
+    const named = options.arguments.filter((ca) => ca.type == 'named')
+    const flags = options.arguments.filter((ca) => ca.type == 'flag')
     const overflow = []
     const unknown_names = []
     const transfer = []
@@ -296,18 +305,18 @@ class Cli {
     const assign = (ca, value) => {
       assignments.push({
         cli_arg: ca,
-        value: value
+        value: value,
       })
     }
 
     // expanding argv for compounded flags
     const expanded_argv = []
-    argv.forEach(arg => {
+    argv.forEach((arg) => {
       if (arg.match(/^-[^-]/) == null || arg.match(/[^a-zA-Z0-9]/) == null) {
         expanded_argv.push(arg)
       } else {
         arg = arg.substr(1)
-        arg.split('').forEach(a => expanded_argv.push('-' + a))
+        arg.split('').forEach((a) => expanded_argv.push('-' + a))
       }
     })
 
@@ -328,15 +337,15 @@ class Cli {
       if (arg.match(/^(--|-)/)) {
         if (matched_named_args != null) {
           // values matched but no value.
-          matched_named_args.forEach(ca => assign(ca, null))
+          matched_named_args.forEach((ca) => assign(ca, null))
           matched_named_args = null
         }
 
         const name = arg.startsWith('--') ? arg.substr(2) : arg.substr(1)
-        matched_named_args = named.filter(ca => ca.matches(name))
-        const mathced_flags = flags.filter(ca => ca.matches(name))
+        matched_named_args = named.filter((ca) => ca.matches(name))
+        const mathced_flags = flags.filter((ca) => ca.matches(name))
 
-        mathced_flags.forEach(ca => assign(ca, true))
+        mathced_flags.forEach((ca) => assign(ca, true))
         if (mathced_flags.length == 0 && matched_named_args.length == 0)
           unknown_names.push(arg)
         continue
@@ -344,7 +353,7 @@ class Cli {
 
       // regular value.
       if (matched_named_args != null) {
-        matched_named_args.forEach(ca => assign(ca, arg))
+        matched_named_args.forEach((ca) => assign(ca, arg))
         matched_named_args = null
       } else if (positional.length > 0) {
         const ca = positional.shift()
@@ -356,13 +365,13 @@ class Cli {
 
     if (overflow.length > 0)
       options.arguments
-        .filter(ca => ca.type == 'overflow')
-        .forEach(ca => overflow.forEach(val => assign(ca, val)))
+        .filter((ca) => ca.type == 'overflow')
+        .forEach((ca) => overflow.forEach((val) => assign(ca, val)))
 
     if (transfer.length > 0)
       options.arguments
-        .filter(ca => ca.type == 'transfer')
-        .forEach(ca => transfer.forEach(val => assign(ca, val)))
+        .filter((ca) => ca.type == 'transfer')
+        .forEach((ca) => transfer.forEach((val) => assign(ca, val)))
 
     return { assignments, overflow, transfer, unknown_names }
   }
@@ -384,16 +393,16 @@ class Cli {
     const call_command_not_found = () => {
       // command not found.
       if (parse_options.show_help_on_error)
-        console.error(this.__getHelpText(''))
+      this.logger.error(this.__getHelpText(''))
 
       const command_words = argv
         .filter(
-          a => a.match(/^(--|-)/) == null && a.match(/[^a-zA-Z0-9_-]/) == null
+          (a) => a.match(/^(--|-)/) == null && a.match(/[^a-zA-Z0-9_-]/) == null
         )
         .join(' ')
 
       if (parse_options.show_errors)
-        console.error(
+        this.logger.error(
           'Error: '.red + `Command '${command_words.green}' not found.`
         )
 
@@ -401,8 +410,8 @@ class Cli {
         const suggestions = this.Context.findSuggestions(command_words)
 
         if (suggestions.length > 0) {
-          console.log('Did you mean? '.green)
-          console.log('  ' + this.Context.name + ' ' + suggestions[0].cyan)
+          this.logger.print('Did you mean? '.green)
+          this.logger.print('  ' + this.Context.name + ' ' + suggestions[0].cyan)
         }
       }
 
@@ -418,8 +427,8 @@ class Cli {
     if (options == null) return call_command_not_found()
 
     const all_env_args = this.Context.getAllArguments()
-      .filter(ca => typeof ca.enviromentVariable == 'string')
-      .filter(ca => options.arguments.every(oca => !Object.is(ca, oca)))
+      .filter((ca) => typeof ca.enviromentVariable == 'string')
+      .filter((ca) => options.arguments.every((oca) => !Object.is(ca, oca)))
 
     // first reset all the arguments to assign.
     for (const ca of options.arguments) await ca.reset()
@@ -431,14 +440,16 @@ class Cli {
     const {
       assignments,
       overflow,
-      unknown_names
+      unknown_names,
     } = this.__parseAssignArguments(options, unmatched)
 
     // check if there is any remainder.
     const positional_args = options.arguments.filter(
-      ca => ca.type == 'positional'
+      (ca) => ca.type == 'positional'
     )
-    const overflow_args = options.arguments.filter(ca => ca.type == 'overflow')
+    const overflow_args = options.arguments.filter(
+      (ca) => ca.type == 'overflow'
+    )
 
     if (positional_args.length < overflow.length && overflow_args.length == 0)
       return call_command_not_found()
@@ -450,12 +461,12 @@ class Cli {
 
     // loading all the args.
     const args = {}
-    options.arguments.forEach(ca => (args[ca.field_name] = ca.value))
+    options.arguments.forEach((ca) => (args[ca.field_name] = ca.value))
 
     const errored_args = options.arguments
       .concat(all_env_args)
       .filter(
-        ca =>
+        (ca) =>
           ca.__assignmentState != true &&
           (ca.require || ca.state instanceof Error)
       )
@@ -464,34 +475,34 @@ class Cli {
       this.showHelp(command.join(' '))
     }
 
-    const print_errored_args_table = title => {
+    const print_errored_args_table = (title) => {
       title = title || 'ERROR: '.red
       const pr = new ColumnPrinter([-1, -1, 80])
-      errored_args.forEach(ca => {
+      errored_args.forEach((ca) => {
         pr.append([
           '',
           print_cli_argument_aliases(this, ca, true),
-          ca.state instanceof Error ? ca.state.message : 'required'.yellow
+          ca.state instanceof Error ? ca.state.message : 'required'.yellow,
         ])
       })
-      console.error(title)
-      console.error(pr.print())
+      this.logger.error(title)
+      this.logger.error(pr.print())
     }
 
-    const show_unknown_args_table = title => {
+    const show_unknown_args_table = (title) => {
       title = title || 'ERROR: '.red + 'Unrecognized command sequence'
       const pr = new ColumnPrinter([-1, -1, 80])
 
-      overflow.forEach(v => {
+      overflow.forEach((v) => {
         pr.append('', v.yellow, 'Unexpected positional value')
       })
 
-      unknown_names.forEach(n => {
+      unknown_names.forEach((n) => {
         pr.append('', n.yellow, 'Unknown flag or argument')
       })
 
-      console.error(title)
-      console.error(pr.print())
+      this.logger.error(title)
+      this.logger.error(pr.print())
     }
 
     // check for errors.
@@ -530,7 +541,7 @@ class Cli {
       }
 
       for (let i = 0; i < print_actions.length; i++) {
-        if (i > 0) console.log()
+        if (i > 0) this.logger.print()
         print_actions[i]()
       }
       return 2
@@ -609,7 +620,7 @@ class Cli {
       show_parent_options == null &&
       this.Context.hideParentCommandOptionsOnHelp
     ) {
-      show_parent_options = process.argv.some(c => c == '--help-all')
+      show_parent_options = process.argv.some((c) => c == '--help-all')
     } else show_parent_options = true
 
     let help = this.getHelpText(command, formatter, show_parent_options)
