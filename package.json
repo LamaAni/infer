@@ -30,6 +30,7 @@
     "assert": "^2.0.0",
     "colors": "^1.4.0",
     "extend": "^3.0.2",
+    "js-yaml": "^3.14.0",
     "moment": "^2.29.1"
   },
   "devDependencies": {
