@@ -393,7 +393,7 @@ class Cli {
     const call_command_not_found = () => {
       // command not found.
       if (parse_options.show_help_on_error)
-      this.logger.error(this.__getHelpText(''))
+        this.logger.error(this.__getHelpText(''))
 
       const command_words = argv
         .filter(
@@ -402,16 +402,16 @@ class Cli {
         .join(' ')
 
       if (parse_options.show_errors)
-        this.logger.error(
-          'Error: '.red + `Command '${command_words.green}' not found.`
-        )
+        this.logger.error(`Command '${command_words.green}' not found.`)
 
       if (parse_options.show_did_you_mean) {
         const suggestions = this.Context.findSuggestions(command_words)
 
         if (suggestions.length > 0) {
           this.logger.print('Did you mean? '.green)
-          this.logger.print('  ' + this.Context.name + ' ' + suggestions[0].cyan)
+          this.logger.print(
+            '  ' + this.Context.name + ' ' + suggestions[0].cyan
+          )
         }
       }
 
@@ -476,7 +476,7 @@ class Cli {
     }
 
     const print_errored_args_table = (title) => {
-      title = title || 'ERROR: '.red
+      title = title || 'Unknown error, no error title provided'.red
       const pr = new ColumnPrinter([-1, -1, 80])
       errored_args.forEach((ca) => {
         pr.append([
@@ -490,7 +490,7 @@ class Cli {
     }
 
     const show_unknown_args_table = (title) => {
-      title = title || 'ERROR: '.red + 'Unrecognized command sequence'
+      title = title || 'Unrecognized command sequence'
       const pr = new ColumnPrinter([-1, -1, 80])
 
       overflow.forEach((v) => {

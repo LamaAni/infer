@@ -19,7 +19,7 @@ function split_colored_joined_text(text, max_width) {
   }
 
   let last_position = 0
-  const text_parts = wrap_positions.map(p => {
+  const text_parts = wrap_positions.map((p) => {
     const part = text.substring(last_position, p)
     last_position = p
     return part
@@ -38,25 +38,25 @@ function wrap(text, max_width = 80) {
 
   const outer_lines = (text || '').split('\n')
   if (outer_lines.length > 1) {
-    return outer_lines.map(l => wrap(l, max_width)).join('\n')
+    return outer_lines.map((l) => wrap(l, max_width)).join('\n')
   }
 
   assert(max_width > 0, 'Max width must be larger then zero')
 
   const line = outer_lines[0]
-  const make_word = text => {
+  const make_word = (text) => {
     return {
       length: text.strip.length,
-      text: text
+      text: text,
     }
   }
-  const words = []
-  line
-    .split(' ')
-    .map(w => w + ' ')
-    .forEach(w =>
+  let words = []
+  let raw_words = line.split(' ')
+  raw_words
+    .map((w, i) => (i < raw_words.length - 1 ? w + ' ' : w))
+    .forEach((w) =>
       w.strip.length > max_width
-        ? split_colored_joined_text(w, max_width).forEach(wp =>
+        ? split_colored_joined_text(w, max_width).forEach((wp) =>
             words.push(make_word(wp))
           )
         : words.push(make_word(w))
@@ -82,7 +82,7 @@ function wrap(text, max_width = 80) {
   lines.push(cur_line.join(''))
 
   // recoloring lines.
-  const find_last_color = txt => {
+  const find_last_color = (txt) => {
     const re = /\033\[[^m]+m/g
     let last_match = null
     do {
@@ -108,4 +108,21 @@ function wrap(text, max_width = 80) {
   return lines.join('\n').trimRight()
 }
 
-module.exports = wrap
+/**
+ * Limit the text and add a limiter symbol if was cut. Will take into
+ * account colors.
+ * @param {string} text The text to limit
+ * @param {number} max_length The max length
+ * @param {string} symbol The symbol to mark the limiting...
+ */
+function limit(text, max_length, symbol = ' ...') {
+  if (text.strip.length <= max_length) return text
+
+  let lines = split_colored_joined_text(text, max_length)
+  return `${lines[0]}${symbol}`
+}
+
+module.exports = {
+  wrap,
+  limit,
+}

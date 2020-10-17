@@ -340,7 +340,9 @@ class CliConfigCommand extends CliCommandOptions {
         .filter((s) => s.trim() != '')
 
       if (suggestions.length > 0)
-      this.selfCli.logger.error('Did you mean?\n\t'.green + suggestions[0].cyan)
+        this.selfCli.logger.error(
+          'Did you mean?\n\t'.green + suggestions[0].cyan
+        )
     }
     return command
   }
@@ -424,9 +426,7 @@ class CliConfigCommand extends CliCommandOptions {
     if (arg.type == 'flag') {
       options.value = options.value.trim().toLowerCase()
       if (options.value != 'false' && options.value != 'true') {
-        this.selfCli.logger.error(
-          'Error: '.red + 'Flag values must be either true or false'
-        )
+        this.selfCli.logger.error('Flag values must be either true or false')
         return null
       }
       options.value = options.value == 'true'

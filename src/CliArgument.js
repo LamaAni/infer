@@ -125,6 +125,12 @@ class CliArgument {
      * Applies to types: named, overflow, transfer
      */
     this.collectMultiple = false
+
+    /**
+     * The maximal number of characters to display in the value column
+     * of the help menu
+     */
+    this.max_help_value_chars = 100
   }
 
   /**
@@ -142,7 +148,7 @@ class CliArgument {
       names = names.concat(
         Array.isArray(this.aliases) ? this.aliases : [this.aliases]
       )
-    return names.filter(n => typeof n == 'string' && !/[^\w-]/g.test(n))
+    return names.filter((n) => typeof n == 'string' && !/[^\w-]/g.test(n))
   }
 
   /**
@@ -274,7 +280,7 @@ class CliArgument {
   matches(name) {
     return (
       this.name == name ||
-      (this.aliases || []).some(a =>
+      (this.aliases || []).some((a) =>
         a instanceof RegExp ? a.test(name) : Pattern.test(a, name)
       )
     )

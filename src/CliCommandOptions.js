@@ -1,6 +1,7 @@
 const CliArgument = require('./CliArgument')
 const assert = require('assert')
 const extend = require('extend')
+const Logger = require('./logger/Logger')
 
 class CliCommandOptions {
   constructor() {

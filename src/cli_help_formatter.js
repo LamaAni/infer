@@ -1,5 +1,5 @@
 const ColumnPrinter = require('./textops/column_printer')
-const wrap = require('./textops/wrap_colored_text')
+const { wrap, limit } = require('./textops/wrapping')
 const paint_with_color = require('./textops/paint_with_color')
 
 /**
@@ -58,13 +58,7 @@ function print_cli_command_name(cli, options, name) {
     options.action == null
       ? cli.Context.colors.sub_menu
       : cli.Context.colors.action
-  return paint_with_color(
-    name
-      .split(' ')
-      .slice(-1)[0]
-      .trim(),
-    color
-  )
+  return paint_with_color(name.split(' ').slice(-1)[0].trim(), color)
 }
 
 /**
@@ -86,7 +80,7 @@ function print_cli_argument_aliases(
   add_color = true
 ) {
   return ca.names
-    .map(name =>
+    .map((name) =>
       print_cli_argument_name(cli, ca, name, add_notation, add_color)
     )
     .join(' | ')
@@ -101,7 +95,7 @@ function indent_text(count, text) {
   const spaces = new Array(count).fill(' ').join('')
   return text
     .split('\n')
-    .map(p => spaces + p)
+    .map((p) => spaces + p)
     .join('\n')
 }
 
@@ -113,28 +107,28 @@ function indent_text(count, text) {
  */
 function cli_help_formatter(command, options, cli) {
   // gathering info
-  const flags = options.arguments.filter(ca => ca.type == 'flag')
-  const named = options.arguments.filter(ca => ca.type == 'named')
-  const positional = options.arguments.filter(ca => ca.type == 'positional')
-  const transfer = options.arguments.filter(ca => ca.type == 'transfer')[0]
-  const overflow = options.arguments.filter(ca => ca.type == 'overflow')[0]
+  const flags = options.arguments.filter((ca) => ca.type == 'flag')
+  const named = options.arguments.filter((ca) => ca.type == 'named')
+  const positional = options.arguments.filter((ca) => ca.type == 'positional')
+  const transfer = options.arguments.filter((ca) => ca.type == 'transfer')[0]
+  const overflow = options.arguments.filter((ca) => ca.type == 'overflow')[0]
   const example = options.example
   const description = options.description
 
   /** @type {Object<string,CliArgument[]>} */
   const envs = {}
   options.arguments
-    .filter(ca => ca.enviromentVariable != null)
-    .forEach(ca => {
+    .filter((ca) => ca.enviromentVariable != null)
+    .forEach((ca) => {
       envs[ca.enviromentVariable] = envs[ca.enviromentVariable] || []
       envs[ca.enviromentVariable].push(ca)
     })
 
   // finding child commands.
-  const child_commands = cli.Context.getSubCommands(command).map(c => {
+  const child_commands = cli.Context.getSubCommands(command).map((c) => {
     return {
       command: c,
-      options: cli.Context.getOptions(c)
+      options: cli.Context.getOptions(c),
     }
   })
 
@@ -142,8 +136,8 @@ function cli_help_formatter(command, options, cli) {
   const command_parts = [cli.Context.name.trim(), command.trim().cyan]
 
   positional
-    .map(ca => print_cli_argument_name(cli, ca, ca.name, true))
-    .forEach(p => command_parts.push(p))
+    .map((ca) => print_cli_argument_name(cli, ca, ca.name, true))
+    .forEach((p) => command_parts.push(p))
 
   if (overflow != null)
     command_parts.push(
@@ -190,7 +184,7 @@ function cli_help_formatter(command, options, cli) {
    * @param {string} txt The topic
    * not the first line.
    */
-  const format_topic = topic => {
+  const format_topic = (topic) => {
     if (topic == null || topic.length == 0) return '--'.gray
     topic = topic.toLowerCase()
     topic = topic[0].toUpperCase() + topic.substr(1)
@@ -203,7 +197,7 @@ function cli_help_formatter(command, options, cli) {
 
   if (child_commands.length > 0) {
     const pr = new ColumnPrinter([-1, 80])
-    child_commands.forEach(c => {
+    child_commands.forEach((c) => {
       pr.append(
         print_cli_command_name(cli, c.options, c.command),
         c.options.description
@@ -221,18 +215,24 @@ function cli_help_formatter(command, options, cli) {
    */
   const print_arguments = (topic, col, all_aliases = false) => {
     const pr = new ColumnPrinter([-1, 10, 80, 30])
-    col.forEach(ca => {
-      const cur_val = ca.value || ca.default
+    col.forEach((ca) => {
+      let cur_val = ca.value || ca.default
+      cur_val =
+        cur_val == null
+          ? ''
+          : `[${
+              typeof ca.max_help_value_chars == 'number'
+                ? limit(`${cur_val}`, ca.max_help_value_chars)
+                : cur_val
+            }]`
       pr.append(
         all_aliases
           ? print_cli_argument_aliases(cli, ca, true)
           : print_cli_argument_name(cli, ca, ca.name, true),
         ca.require ? '*'.red : '',
         ca.description,
-        paint_with_color(
-          cur_val == null ? '' : `[${cur_val}]`,
-          cli.Context.colors.default
-        )
+
+        paint_with_color(cur_val, cli.Context.colors.default)
       )
     })
     print(format_topic(topic))
@@ -240,7 +240,7 @@ function cli_help_formatter(command, options, cli) {
   }
 
   const positional_with_ot = [overflow, transfer]
-    .filter(ca => ca != null)
+    .filter((ca) => ca != null)
     .concat(positional)
 
   if (positional_with_ot.length > 0)
@@ -251,13 +251,13 @@ function cli_help_formatter(command, options, cli) {
   const env_names = Object.keys(envs)
   if (env_names.length > 0) {
     const pr = new ColumnPrinter([40, 5, 50])
-    env_names.sort().forEach(env => {
+    env_names.sort().forEach((env) => {
       // env arguments have their own descriptor
-      const named_cas = envs[env].filter(ca => ca.type != 'env')
-      const was_assigned = envs[env].some(ca => ca.readEnvFromProcess)
+      const named_cas = envs[env].filter((ca) => ca.type != 'env')
+      const was_assigned = envs[env].some((ca) => ca.readEnvFromProcess)
       if (named_cas.length == 0) {
         const description = envs[env]
-          .map(ca => ca.description)
+          .map((ca) => ca.description)
           .join('\nand\n'.gray)
 
         pr.append(
@@ -269,7 +269,7 @@ function cli_help_formatter(command, options, cli) {
           description
         )
       } else {
-        const arg_names = named_cas.map(ca =>
+        const arg_names = named_cas.map((ca) =>
           print_cli_argument_name(cli, ca, ca.name, false)
         )
 
@@ -300,5 +300,5 @@ function cli_help_formatter(command, options, cli) {
 module.exports = {
   cli_help_formatter,
   print_cli_argument_name,
-  print_cli_argument_aliases
+  print_cli_argument_aliases,
 }
