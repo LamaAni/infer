@@ -22,7 +22,7 @@ class CliContext extends events {
    * @param {string} param.name The name of the context.
    * @param {Logger} param.logger The cli logger
    */
-  constructor({ name = null, logger = null }) {
+  constructor({ name = null, logger = null } = {}) {
     super()
 
     name = name || ''
