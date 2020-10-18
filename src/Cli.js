@@ -34,7 +34,7 @@ const DEFUALT_PARSE_OPTIONS = {
   /**
    * Throw exception when command is not found.
    */
-  throw_on_error: false,
+  throw_command_not_found_error: false,
   /**
    * Throw errors when all required arguments are not met and/or
    * there is overflow on the command arguments.
@@ -382,7 +382,17 @@ class Cli {
    * @param {DEFUALT_PARSE_OPTIONS} parse_options
    * @returns {{command: ,options: CliCommandOptions, args: object<string,any>}} The arguments.
    */
-  async parse(
+  async parse() {
+    await this._parse(argv, parse_options)
+  }
+
+  /**
+   * Parse the command line arguments.
+   * @param {string| string[]} argv The command line arguments to parse.
+   * @param {DEFUALT_PARSE_OPTIONS} parse_options
+   * @returns {{command: ,options: CliCommandOptions, args: object<string,any>}} The arguments.
+   */
+  async _parse(
     argv = process.argv.slice(2),
     parse_options = DEFUALT_PARSE_OPTIONS
   ) {
@@ -415,7 +425,7 @@ class Cli {
         }
       }
 
-      if (this.parse.throw_on_error)
+      if (parse_options.throw_command_not_found_error)
         throw new Error('Command not found, args:\n' + JSON.stringify(argv))
 
       if (parse_options.exit_code_on_error > -1)
