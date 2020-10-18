@@ -66,7 +66,7 @@ class Cli {
     command_postfix = null,
     context = null,
     logger = null,
-  }) {
+  } = {}) {
     /**
      * @type {string} The command prefix to add to any command that has been set.
      */
