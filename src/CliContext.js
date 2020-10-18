@@ -3,6 +3,7 @@ const assert = require('assert')
 const levenshtein = require('./textops/levenshtein')
 const cli_help_formatter = require('./cli_help_formatter')
 const { get_possible_commands, string_to_argv } = require('./cli_argv_parser')
+const Logger = require('./logger/Logger')
 
 /**
  * @typedef {import('./CliCommandOptions')} CliCommandOptions
@@ -17,10 +18,14 @@ const { get_possible_commands, string_to_argv } = require('./cli_argv_parser')
  */
 class CliContext extends events {
   /**
-   * @param {string} name The name of the context.
+   * @param {object} param
+   * @param {string} param.name The name of the context.
+   * @param {Logger} param.logger The cli logger
    */
-  constructor(name) {
+  constructor({ name = null, logger = null }) {
     super()
+
+    name = name || ''
 
     /**
      * @type {Object<string,CliCommandOptions>}
@@ -42,7 +47,7 @@ class CliContext extends events {
       env: 'magenta',
 
       action: 'cyan',
-      sub_menu: 'blue'
+      sub_menu: 'blue',
     }
 
     assert(typeof name == 'string', 'The Cli name must be a string')
@@ -73,6 +78,11 @@ class CliContext extends events {
      * on help (adds reserved argument '--help-all')
      */
     this.hideParentCommandOptionsOnHelp = true
+
+    /**
+     * The cli context logger.
+     */
+    this.logger = logger || new Logger(this.name)
   }
 
   /**
@@ -142,11 +152,13 @@ class CliContext extends events {
   getSubCommands(command) {
     command = CliContext.cleanCommand(command)
     const allChildCommands = Object.keys(this.commands).filter(
-      c => c.startsWith(command) && c != command
+      (c) => c.startsWith(command) && c != command
     )
 
-    const allDirectChildCommands = allChildCommands.filter(c => {
-      return !allChildCommands.some(other => c != other && c.startsWith(other))
+    const allDirectChildCommands = allChildCommands.filter((c) => {
+      return !allChildCommands.some(
+        (other) => c != other && c.startsWith(other)
+      )
     })
 
     return allDirectChildCommands
@@ -161,17 +173,17 @@ class CliContext extends events {
     argv = typeof argv == 'string' ? string_to_argv(argv) : Array.from(argv)
 
     const possibles = get_possible_commands(argv)
-      .map(c => {
+      .map((c) => {
         let options = this.getOptions(c)
         return options != null
           ? {
               command: c,
               args: c.split(' '),
-              options
+              options,
             }
           : null
       })
-      .filter(p => p != null)
+      .filter((p) => p != null)
 
     const longest = possibles.sort((a, b) => {
       return b.command.length - a.command.length
@@ -180,8 +192,8 @@ class CliContext extends events {
     /** @type {Object<string,CliCommandOptions>} */
     const parents = {}
     Object.keys(this.commands)
-      .filter(c => longest.command != c && longest.command.startsWith(c))
-      .forEach(pc => {
+      .filter((c) => longest.command != c && longest.command.startsWith(c))
+      .forEach((pc) => {
         const subOptions = this.getOptions(pc)
         if (subOptions != null) parents[pc] = subOptions
       })
@@ -202,7 +214,7 @@ class CliContext extends events {
       options: longest.options,
       parents,
       unmatched,
-      argv: argv
+      argv: argv,
     }
   }
 
@@ -215,11 +227,11 @@ class CliContext extends events {
   findSuggestions(command, edit_distance = 5) {
     const by_distance = {}
     const all_commands = Object.keys(this.commands)
-    all_commands.forEach(c => (by_distance[c] = levenshtein(command, c)))
+    all_commands.forEach((c) => (by_distance[c] = levenshtein(command, c)))
 
-    const suggestions = all_commands.some(c => by_distance[c] == 0)
+    const suggestions = all_commands.some((c) => by_distance[c] == 0)
       ? []
-      : all_commands.filter(c => by_distance[c] < edit_distance)
+      : all_commands.filter((c) => by_distance[c] < edit_distance)
 
     suggestions.sort((a, b) => {
       return by_distance[a] - by_distance[b]
@@ -237,7 +249,9 @@ class CliContext extends events {
      * @type {CliArgument[]}
      */
     let args = []
-    Object.values(this.commands).forEach(c => (args = args.concat(c.arguments)))
+    Object.values(this.commands).forEach(
+      (c) => (args = args.concat(c.arguments))
+    )
     return args
   }
 

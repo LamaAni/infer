@@ -51,17 +51,22 @@ const DEFUALT_PARSE_OPTIONS = {
  */
 class Cli {
   /**
-   * @param {string} command_prefix the command prefix to add to any command. Defaults to ""
-   * @param {string} command_postfix the command prefix to add to any command. Defaults to ""
-   * @param {CliContext} context The cli data and configuration collection. A new context
+   * @param {object} param
+   * @param {string} param.name The name of the cli.
+   * @param {string} param.command_prefix the command prefix to add to any command. Defaults to ""
+   * @param {string} param.command_postfix the command prefix to add to any command. Defaults to ""
+   * @param {Logger} param.logger The cli logger to use.
+   * @param {CliContext} param.context The cli context to use (configuration and common data). Will
+   * override {name, logger}
    * will be created if null.
    */
-  constructor(
-    name,
+  constructor({
+    name = null,
     command_prefix = null,
     command_postfix = null,
-    context = null
-  ) {
+    context = null,
+    logger = null,
+  }) {
     /**
      * @type {string} The command prefix to add to any command that has been set.
      */
@@ -75,7 +80,7 @@ class Cli {
      * @type {CliContext} The collection of all commands
      * and configuration of the cli.
      */
-    this.Context = context || new CliContext(name)
+    this.Context = context || new CliContext({ name: name, logger: logger })
   }
 
   /**
@@ -93,7 +98,7 @@ class Cli {
    * You can change the logger in Options.
    */
   get logger() {
-    return this.Options.logger || console
+    return this.Context.logger || console
   }
 
   /**
@@ -108,59 +113,6 @@ class Cli {
     return `${this.commandPrefix || ''} ${
       command == null ? '' : command + ' '
     }${this.commandPostfix || ''}`.trim()
-  }
-
-  /**
-   * Sets a new command
-   * @param {string} command The command to set
-   * @param {Object<string,CliArgument>|[Object<string,CliArgument>]} args The object that contains the args.
-   * For classes, (not raw object {}) an arg is any field that would be marked with __$.
-   * Otherwise any field is considered an argument. Once parsed, the value
-   * will be set on the object reference.
-   * sent. (Examples below)
-   * @param {CliCommandOptions} options
-   * @return {Cli} The internal cli command.
-   * @example
-   * For raw object {}:
-   * {
-   *  // type: CliArgument
-   *  the_value:{
-   *    name: 'the-value',
-   *    required: true
-   *  },
-   * }
-   * @example
-   * For a class:
-   * {
-   *  class MyClass{
-   *    __$the_value:{
-   *      name: 'the-value',
-   *      required: true
-   *    }
-   *    the_value:  33 // as default.
-   *  }
-   * }
-   */
-  set(command, args = null, options = null) {
-    // compose the new command
-    command = this.__composeFullCommand(command)
-    const command_options = new CliCommandOptions()
-
-    CliContext.assertCommandText(command)
-
-    // extend the options object if needed.
-    if (options != null) {
-      extend(command_options, options)
-    }
-
-    ;(Array.isArray(args) ? args : [args]).forEach((args_obj) => {
-      command_options.loadFromObject(args_obj)
-    })
-
-    this.Context.setOptions(command, command_options)
-    this.Context.emit('command_added', command, command_options)
-
-    return this
   }
 
   /**
@@ -187,39 +139,32 @@ class Cli {
   }
 
   /**
-   * Sets a new command
+   * Adds/replaces a command
    * @param {string} command The command to set
-   * @param {Object<string,CliArgument>} args The object that contains the args.
-   * For classes, (not raw object {}) an arg is any field that would be marked with __$.
-   * Otherwise any field is considered an argument. Once parsed, the value
-   * will be set on the object reference.
-   * sent. (Examples below)
+   * @param {Object<string,CliArgument>} args The object that contains the args. See CliArgument documentation.
    * @param {CliCommandOptions} options
-   * @return {Cli} The internal cli command.
-   * @example
-   * For raw object {}:
-   * {
-   *  // type: CliArgument
-   *  the_value:{
-   *    name: 'the-value',
-   *    required: true
-   *  },
-   * }
-   * @example
-   * For a class:
-   * {
-   *  class MyClass{
-   *    __$the_value:{
-   *      name: 'the-value',
-   *      required: true
-   *    }
-   *    the_value:  33 // as default.
-   *  }
-   * }
+   * @returns {Cli} [this]
    */
-  setCollection(command, args = null, options = null) {
-    this.set(this.__composeFullCommand(command), args, options)
-    return this.get(command)
+  set(command, args = null, options = null) {
+    // compose the new command
+    command = this.__composeFullCommand(command)
+    const command_options = new CliCommandOptions()
+
+    CliContext.assertCommandText(command)
+
+    // extend the options object if needed.
+    if (options != null) {
+      extend(command_options, options)
+    }
+
+    ;(Array.isArray(args) ? args : [args]).forEach((args_obj) => {
+      command_options.loadFromObject(args_obj)
+    })
+
+    this.Context.setOptions(command, command_options)
+    this.Context.emit('command_added', command, command_options)
+
+    return this
   }
 
   /**
@@ -229,7 +174,57 @@ class Cli {
   get(command) {
     command = this.__composeFullCommand(command)
     CliContext.assertCommandText(command)
-    return new Cli(this.Context.name, command, null, this.Context)
+    return new Cli({
+      name: this.Context.name,
+      command_prefix: command,
+      command_postfix: null,
+      context: this.Context,
+    })
+  }
+
+  /**
+   * Start a new command (new cli object), equivalent to set(command, ...).get()
+   * @param {string} command The command to set
+   * @param {Object<string,CliArgument>} args The object that contains the args. See CliArgument documentation.
+   * @param {CliCommandOptions} options
+   * @returns {Cli} The new (internal) cli.
+   * @example
+   * const cli = Cli()
+   * // all commands prefixed by "config [command]"
+   * const cli_config = cli.new('config')
+   * cli_config.set('list')
+   * // command interpreted as => [my file] config list
+   */
+  new(command, args = null, options = null) {
+    this.set(this.__composeFullCommand(command), args, options)
+    return this.get(command)
+  }
+
+  /**
+   * Sets the default action for this cli, equivalent to set(null, args, {action:action})
+   * @param {(args:object)=>{}} action The action to be called when this cli triggers. Will override options.action.
+   * @param {Object<string,CliArgument>} args The object that contains the args. See CliArgument documentation.
+   * @param {CliCommandOptions} options
+   * @returns {Cli} [this]
+   */
+  default(action, args = null, options = null) {
+    options = options || {}
+    options.action = action
+    return this.set(null, args, options)
+  }
+
+  /**
+   * Sets the default action for this cli, equivalent to set(command, args, {action:action}))
+   * @param {string} command The command to set.
+   * @param {(args:object)=>{}} action The action to be called when this cli triggers. Will override options.action.
+   * @param {Object<string,CliArgument>} args The object that contains the args. See CliArgument documentation.
+   * @param {CliCommandOptions} options The command options (like description)
+   * @returns {Cli} [this]
+   */
+  on(command, action, args, options) {
+    options = options || {}
+    options.action = action
+    this.set(command, args, options)
   }
 
   /**
@@ -382,7 +377,10 @@ class Cli {
    * @param {DEFUALT_PARSE_OPTIONS} parse_options
    * @returns {{command: ,options: CliCommandOptions, args: object<string,any>}} The arguments.
    */
-  async parse() {
+  async parse(
+    argv = process.argv.slice(2),
+    parse_options = DEFUALT_PARSE_OPTIONS
+  ) {
     await this._parse(argv, parse_options)
   }
 
@@ -638,6 +636,8 @@ class Cli {
 
     this.Context.emit('help', help)
     stream.write(help)
+
+    return this
   }
 }
 

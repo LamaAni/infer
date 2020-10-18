@@ -10,23 +10,51 @@ This tool is in `ALPHA` and should be used with care.
 
 ## TL;DR
 
-In the short version, to define a cli:
+To define a simple cli,
+
+```javascript
+new (require('./index').Cli)({ name: 'my_cli' })
+  .default(
+    async ({ arg = null, flag = false }) => {
+      console.info('Recived argument: ' + arg)
+      console.info('Flag is: ' + flag)
+    },
+    {
+      arg: {
+        type: 'named',
+        aliases: ['a'],
+      },
+      flag: {
+        type: 'flag',
+      },
+    }
+  )
+  .showHelp()
+  .parse(['-a', 'The argument'])
+  .catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+```
+
+With inner commands,
 
 ```javascript
 const Cli = require('@lamaani/zcli').Cli
-
-const cli = new Cli('myapp')
+const cli = new Cli({ name: 'myapp' })
 const myrunner = new MyRunner()
 
 // optional sub menu:
 cli.set('run', {}, { description: 'stuff to run' })
 
+// Using a class to define the arguments.
 // the command: myapp run class
 cli.set('run class', myrunner, {
   description: 'Get options from a class',
   action: (options) => myrunner.run(options),
 })
 
+// Directly define the arguments.
 cli.set(
   'run special',
   {

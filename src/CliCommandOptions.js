@@ -1,7 +1,6 @@
 const CliArgument = require('./CliArgument')
 const assert = require('assert')
 const extend = require('extend')
-const Logger = require('./logger/Logger')
 
 class CliCommandOptions {
   constructor() {
@@ -41,11 +40,6 @@ class CliCommandOptions {
      * @type {boolean} If true then inherit all parent named options.
      */
     this.inheritParentNamedOptions = true
-
-    /**
-     * @type {Logger} The underlining logger
-     */
-    this.logger = new Logger()
   }
 
   /**

@@ -1,8 +1,7 @@
-const cli = new (require('./Cli'))('tester')
+const path = require('path')
 
-// set the default command.
-cli.set(
-  '',
+const cli = new (require('./Cli'))({ name: 'tester' }).default(
+  null,
   {
     all_things_as_path: {
       aliases: ['a'],
@@ -31,16 +30,8 @@ cli.set(
   }
 )
 
-// cli.set(
-//   'an internal command that needs to be set',
-//   {},
-//   {
-//     description: 'The internal command.'
-//   }
-// )
-
 cli
-  .setCollection(
+  .new(
     'init',
     {
       path: {
@@ -59,7 +50,7 @@ cli
   .set('lama')
   .set('kka')
 
-const somethingOptions = {
+const doArgs = {
   what: {
     type: 'positional',
     require: true,
@@ -70,17 +61,59 @@ const somethingOptions = {
   },
 }
 
-cli.set('special', somethingOptions, {
-  action(args) {
+const do_something = cli.new('do something', null)
+
+do_something.on(
+  'special',
+  (args) => {
     console.log('special ' + args.what + ' ' + args.to_do)
   },
-})
+  doArgs,
+  { description: 'Dose something very special' }
+)
 
-cli.set('do something regular', somethingOptions, {
-  action(args) {
+do_something.on(
+  'regular',
+  (args) => {
     console.log('regular ' + args.what + ' ' + args.to_do)
   },
-})
+  doArgs,
+  { description: 'Dose something very regular' }
+)
 
-console.log(process.stdout.columns)
-cli.parse()
+cli.on(
+  'do mundane',
+  (args) => {
+    console.log('mundane ' + args.what + ' ' + args.to_do)
+  },
+  doArgs,
+  {
+    description: 'Do mundane a mundane task',
+  }
+)
+
+async function main() {
+  await cli.parse()
+
+  const commands = [
+    'init --help',
+    'special --help',
+    'do --help',
+    'do something --help',
+    'do something regular --help',
+    'do something special --help',
+    'do mundane dance -t forme',
+    'do something regular write -t script',
+    'do something special make -t movie',
+  ]
+  for (let cmd of commands) {
+    cli.logger.info(
+      `Running: ./${path.basename(__filename)} ` + cmd.green,
+      '=>'.cyan
+    )
+    await cli.parse(cmd)
+    console.log()
+  }
+}
+
+main().catch((err) => console.error(err))

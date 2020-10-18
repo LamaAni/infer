@@ -61,7 +61,7 @@ class CliConfigCommand extends CliCommandOptions {
     /**
      * @type {Cli} the cli the config is connected to.
      */
-    this.selfCli = cli.get(command_name)
+    this._command_cli = cli.get(command_name)
 
     // load all self arguments.
     this.loadFromObject(this)
@@ -69,7 +69,7 @@ class CliConfigCommand extends CliCommandOptions {
     const valid_arg_types = CliConfigCommand.ConfigArgumentTypes
 
     // bind the parsing.
-    this.selfCli.Context.on('pre_parse', () => {
+    this.command_cli.Context.on('pre_parse', () => {
       this.loadDefaultsFromConfig()
     })
 
@@ -105,12 +105,12 @@ class CliConfigCommand extends CliCommandOptions {
     }
 
     // adding the internal commands
-    this.selfCli.set('list', list_arguments, {
+    this.command_cli.set('list', list_arguments, {
       action: (options) => this.list(options),
       description: 'Lists the configuration options',
     })
 
-    this.selfCli.set(
+    this.command_cli.set(
       'print',
       {
         ...list_arguments,
@@ -134,7 +134,7 @@ class CliConfigCommand extends CliCommandOptions {
       }
     )
 
-    this.selfCli.set(
+    this.command_cli.set(
       'set',
       {
         section: {
@@ -155,7 +155,7 @@ class CliConfigCommand extends CliCommandOptions {
         description: 'Gets aF configuration value from storage',
       }
     )
-    this.selfCli.set(
+    this.command_cli.set(
       'get',
       {
         section: {
@@ -172,6 +172,13 @@ class CliConfigCommand extends CliCommandOptions {
         description: 'Sets a configuration value in storage',
       }
     )
+  }
+
+  /**
+   * @type {Cli} The cli for this command.
+   */
+  get command_cli() {
+    return this._command_cli
   }
 
   /**
@@ -222,19 +229,22 @@ class CliConfigCommand extends CliCommandOptions {
   __get_commands(section_filter = null, argument_filter = null, type = null) {
     /** @type {Object<string,CliCommandOptions>} */
     const filtered_commands = {}
-    Object.keys(this.selfCli.Context.commands)
+    Object.keys(this.command_cli.Context.commands)
       .filter((command_text) =>
         Pattern.test(
           section_filter || '*',
           this.__commandTextToSection(
-            command_text.length == 0 ? this.selfCli.Context.name : command_text
+            command_text.length == 0
+              ? this.command_cli.Context.name
+              : command_text
           )
         )
       )
       .sort()
       .forEach((command_text) => {
-        const command = this.selfCli.Context.commands[command_text]
-        if (command_text.startsWith(this.selfCli.__composeFullCommand())) return
+        const command = this.command_cli.Context.commands[command_text]
+        if (command_text.startsWith(this.command_cli.__composeFullCommand()))
+          return
         if (
           command.arguments.some((ca) =>
             this.__match_argument(ca, argument_filter || '*', type)
@@ -275,24 +285,25 @@ class CliConfigCommand extends CliCommandOptions {
             '',
             this.__commandTextToSection(
               command_text.length == 0
-                ? this.selfCli.Context.name
+                ? this.command_cli.Context.name
                 : command_text
             ).cyan,
-            print_cli_argument_aliases(this.selfCli, ca, false, false).yellow,
+            print_cli_argument_aliases(this.command_cli, ca, false, false)
+              .yellow,
             ca.enviromentVariable == null ? '' : ca.enviromentVariable.magenta,
             ca.description
           )
         })
     })
 
-    this.selfCli.logger.print()
-    this.selfCli.logger.print(
-      `To set/get a configuration value: ${this.selfCli.Context.name.magenta} ${
-        this.selfCli.__composeFullCommand().cyan
-      } ` + 'get/set'.yellow
+    this.command_cli.logger.print()
+    this.command_cli.logger.print(
+      `To set/get a configuration value: ${
+        this.command_cli.Context.name.magenta
+      } ${this.command_cli.__composeFullCommand().cyan} ` + 'get/set'.yellow
     )
-    this.selfCli.logger.print()
-    this.selfCli.logger.print(pr.print())
+    this.command_cli.logger.print()
+    this.command_cli.logger.print(pr.print())
   }
 
   print(options) {
@@ -327,20 +338,20 @@ class CliConfigCommand extends CliCommandOptions {
   __find_section_command(section, print_did_you_mean = true) {
     const command_text = this.__sectionToCommandText(section)
     const command =
-      command_text == this.selfCli.Context.name
-        ? this.selfCli.Context.commands['']
-        : this.selfCli.Context.commands[command_text]
+      command_text == this.command_cli.Context.name
+        ? this.command_cli.Context.commands['']
+        : this.command_cli.Context.commands[command_text]
 
     if (command == null && print_did_you_mean) {
-      this.selfCli.logger.error('Could not find section: ' + section.cyan)
-      const suggestions = this.selfCli.Context.findSuggestions(
+      this.command_cli.logger.error('Could not find section: ' + section.cyan)
+      const suggestions = this.command_cli.Context.findSuggestions(
         this.__sectionToCommandText(section)
       )
         .map((c) => this.__commandTextToSection(c))
         .filter((s) => s.trim() != '')
 
       if (suggestions.length > 0)
-        this.selfCli.logger.error(
+        this.command_cli.logger.error(
           'Did you mean?\n\t'.green + suggestions[0].cyan
         )
     }
@@ -370,7 +381,9 @@ class CliConfigCommand extends CliCommandOptions {
 
     let args = this.__find_matching_arguments(command, options.argument)
     if (args.length == 0) {
-      this.selfCli.logger.error('No arguments match ' + options.argument.yellow)
+      this.command_cli.logger.error(
+        'No arguments match ' + options.argument.yellow
+      )
       return null
     }
 
@@ -393,11 +406,11 @@ class CliConfigCommand extends CliCommandOptions {
     })
 
     if (args.length > 1) {
-      this.selfCli.logger.print('multiple arguments match:')
+      this.command_cli.logger.print('multiple arguments match:')
       args.forEach((a) => {
-        this.selfCli.logger.print(`${a.ca.name}: ${a.value | ''}`)
+        this.command_cli.logger.print(`${a.ca.name}: ${a.value | ''}`)
       })
-    } else this.selfCli.logger.print(args[0].value || '')
+    } else this.command_cli.logger.print(args[0].value || '')
     return args
   }
 
@@ -408,13 +421,15 @@ class CliConfigCommand extends CliCommandOptions {
 
     let args = this.__find_matching_arguments(command, options.argument)
     if (args.length == 0) {
-      this.selfCli.logger.error('No arguments match ' + options.argument.yellow)
+      this.command_cli.logger.error(
+        'No arguments match ' + options.argument.yellow
+      )
       return null
     }
 
     // checking values
     if (!args.length > 1) {
-      this.selfCli.logger.error(
+      this.command_cli.logger.error(
         'Error:'.red +
           'Multiple arguments matched to ' +
           options.argument.yellow
@@ -426,7 +441,9 @@ class CliConfigCommand extends CliCommandOptions {
     if (arg.type == 'flag') {
       options.value = options.value.trim().toLowerCase()
       if (options.value != 'false' && options.value != 'true') {
-        this.selfCli.logger.error('Flag values must be either true or false')
+        this.command_cli.logger.error(
+          'Flag values must be either true or false'
+        )
         return null
       }
       options.value = options.value == 'true'
@@ -486,7 +503,9 @@ class CliConfigCommand extends CliCommandOptions {
         .forEach((ca) => {
           ca.reset()
           const section = this.__commandTextToSection(
-            command_text.length == 0 ? this.selfCli.Context.name : command_text
+            command_text.length == 0
+              ? this.command_cli.Context.name
+              : command_text
           )
           // if (ca.value == null) return
           config[section] = config[section] || {}

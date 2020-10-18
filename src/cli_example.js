@@ -13,8 +13,8 @@ class MyRunner {
       type: 'named',
       description: 'Some cli argument',
       aliases: ['a'],
-      parse: val => val,
-      default: 'will be set to arg'
+      parse: (val) => val,
+      default: 'will be set to arg',
     }
     /** Will be set to this value */
     this.arg = null
@@ -23,13 +23,13 @@ class MyRunner {
   run(options) {}
 }
 
-const cli = new Cli('myapp')
+const cli = new Cli({ name: 'myapp' })
 const myrunner = new MyRunner()
 
 // the command: myapp run class
 cli.set('run class', myrunner, {
   description: 'Get options from a class',
-  action: options => myrunner.run(options)
+  action: (options) => myrunner.run(options),
 })
 
 cli.set(
@@ -37,15 +37,15 @@ cli.set(
   {
     arg: {
       type: 'named',
-      aliases: ['a']
+      aliases: ['a'],
     },
     flag: {
-      type: 'flag'
-    }
+      type: 'flag',
+    },
   },
   {
     description: 'run an anonymous action.',
-    action: options => console.log(JSON.stringify(options, null, 2))
+    action: (options) => console.log(JSON.stringify(options, null, 2)),
   }
 )
 
@@ -56,7 +56,7 @@ const CliConfigCommand = require('./CliConfigCommand')
 new CliConfigCommand(
   cli,
   () => require('./my_config.json'),
-  config => {
+  (config) => {
     fs.writeFileSync('./my_config.json', JSON.stringify(config))
   }
 )
