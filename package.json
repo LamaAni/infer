@@ -34,6 +34,7 @@
     "moment": "^2.29.1"
   },
   "devDependencies": {
-    "jest": "^26.5.3"
+    "jest": "^26.5.3",
+    "prettierx": "^0.14.0"
   }
 }

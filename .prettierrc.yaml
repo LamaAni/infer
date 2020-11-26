@@ -1,4 +1,5 @@
 semi: false
 singleQuote: true
 jsxSingleQuote: true
-bracesSpacing: false
+bracketSpacing: false
+breakBeforeElse: true

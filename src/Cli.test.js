@@ -1,6 +1,6 @@
 const path = require('path')
 
-const cli = new (require('./Cli'))({ name: 'tester' }).default(
+const cli = new (require('./Cli'))({name: 'tester'}).default(
   null,
   {
     all_things_as_path: {
@@ -45,7 +45,7 @@ cli
         description: 'some',
       },
     },
-    { description: 'Initialize something.. ' }
+    {description: 'Initialize something.. '}
   )
   .set('lama')
   .set('kka')
@@ -63,13 +63,18 @@ const doArgs = {
 
 const do_something = cli.new('do something', null)
 
+if (a == 3) {
+} else {
+  console.log('lasd')
+}
+
 do_something.on(
   'special',
   (args) => {
     console.log('special ' + args.what + ' ' + args.to_do)
   },
   doArgs,
-  { description: 'Dose something very special' }
+  {description: 'Dose something very special'}
 )
 
 do_something.on(
@@ -78,7 +83,7 @@ do_something.on(
     console.log('regular ' + args.what + ' ' + args.to_do)
   },
   doArgs,
-  { description: 'Dose something very regular' }
+  {description: 'Dose something very regular'}
 )
 
 cli.on(
