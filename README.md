@@ -1,8 +1,10 @@
-# A CLI tool with file configuration
+# A CLI tool with file/object configuration
 
 This engine allows for the efficient, object centric auto generated
 command line interface, which allows one to save and load
 the configuration from a file.
+
+It also includes a custom logger
 
 ## BETA
 
