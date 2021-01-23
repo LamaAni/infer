@@ -4,6 +4,10 @@ This engine allows for the efficient, object centric auto generated
 command line interface, which allows one to save and load
 the configuration from a file.
 
+## Example
+
+![alt text](docs/example_logs.jpg)
+
 ## Status
 
 This tool is in `ALPHA` and should be used with care.
@@ -13,9 +17,9 @@ This tool is in `ALPHA` and should be used with care.
 To define a simple cli,
 
 ```javascript
-new (require('./index').Cli)({ name: 'my_cli' })
+new (require('./index').Cli)({name: 'my_cli'})
   .default(
-    async ({ arg = null, flag = false }) => {
+    async ({arg = null, flag = false}) => {
       console.info('Recived argument: ' + arg)
       console.info('Flag is: ' + flag)
     },
@@ -41,11 +45,11 @@ With inner commands,
 
 ```javascript
 const Cli = require('@lamaani/zcli').Cli
-const cli = new Cli({ name: 'myapp' })
+const cli = new Cli({name: 'myapp'})
 const myrunner = new MyRunner()
 
 // optional sub menu:
-cli.set('run', {}, { description: 'stuff to run' })
+cli.set('run', {}, {description: 'stuff to run'})
 
 // Using a class to define the arguments.
 // the command: myapp run class
