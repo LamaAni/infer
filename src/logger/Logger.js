@@ -168,7 +168,7 @@ const LOGGING_FORMATTERS = {
       }
 
       if (logger.options.show_timestamp !== false)
-        msg = `[${moment().format('YYYYMMDD HH:mm:ss')}]${msg}`
+        msg = `[${moment().toISOString(true)}]${msg}`
 
       return msg
     },
