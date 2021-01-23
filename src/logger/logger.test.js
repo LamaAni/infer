@@ -1,4 +1,6 @@
-const logger = require('./log')()
+const Logger = require('../index').Logger
+
+const logger = new Logger()
 const sub_logger = logger.create('sub')
 const sub_sub_logger = logger.create('sub-sub')
 
@@ -22,7 +24,6 @@ logger.warn('lama', '=>')
 logger.error('lama', '=>')
 logger.fatal('lama', '=>')
 logger.trace('lama', '*')
-
 
 console.log()
 console.log('Sub loggers')

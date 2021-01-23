@@ -6,10 +6,6 @@ the configuration from a file.
 
 ## BETA
 
-## Example
-
-![alt text](docs/example_logs.jpg)
-
 ## TL;DR
 
 To define a simple cli,
@@ -213,6 +209,49 @@ $> 48
 # myapp config set [command with dots] [named/flag] [val/empty to remove]
 myapp config set run.special.case arg 42
 ```
+
+## Logger
+
+```javascript
+const Logger = require('ZCli').Logger
+
+const logger = new Logger()
+const sub_logger = logger.create('sub')
+const sub_sub_logger = logger.create('sub-sub')
+
+logger.level = 0
+console.log('Normal log')
+console.log()
+logger.debug('lama')
+logger.info('lama')
+logger.warn('lama')
+logger.error('lama')
+logger.fatal('lama')
+logger.trace('lama')
+
+console.log()
+console.log('With log symbols')
+console.log()
+
+logger.debug('lama', '=>')
+logger.info('lama', '=>')
+logger.warn('lama', '=>')
+logger.error('lama', '=>')
+logger.fatal('lama', '=>')
+logger.trace('lama', '*')
+
+console.log()
+console.log('Sub loggers')
+console.log()
+
+sub_sub_logger.info('lama-sub-sub')
+sub_logger.info('lama-sub')
+logger.info('lama-parent')
+```
+
+### Example
+
+![alt text](docs/example_logs.jpg)
 
 # Contribution
 
