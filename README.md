@@ -4,13 +4,11 @@ This engine allows for the efficient, object centric auto generated
 command line interface, which allows one to save and load
 the configuration from a file.
 
+## BETA
+
 ## Example
 
 ![alt text](docs/example_logs.jpg)
-
-## Status
-
-This tool is in `ALPHA` and should be used with care.
 
 ## TL;DR
 
