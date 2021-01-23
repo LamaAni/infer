@@ -1,7 +1,7 @@
 const colors = require('colors')
 const extend = require('extend')
 const moment = require('moment')
-const { type } = require('os')
+const {type} = require('os')
 
 /**
  * @typedef {import('./LogData')} LogData
@@ -120,7 +120,7 @@ function colorize_by_level(val, level, dict) {
   return dict[level] != null ? val[dict[level]] : val
 }
 
-let LAST_CLI_TOPIC = null
+// let LAST_CLI_TOPIC = null
 
 /**
  * A collection of built in logging formatters.
@@ -142,35 +142,52 @@ const LOGGING_FORMATTERS = {
           ? JSON.stringify(data.message, null, 2)
           : data.message.toString()
 
-      // check for topic change.
-      if (
-        data.message.trim().length > 0 &&
-        LAST_CLI_TOPIC != data.topic &&
-        LAST_CLI_TOPIC != null
-      ) {
-        console.log(' # '.cyan + (data.topic + ': ').magenta)
-        LAST_CLI_TOPIC = data.topic
-      }
+      // if (LAST_CLI_TOPIC == null) LAST_CLI_TOPIC = data.topic
 
-      msg = `${data.symbol}${data.message}`
-      msg = colorize_by_level(
-        msg,
-        log_level,
-        logger.options.log_level_message_colors
-      )
+      // // check for topic change.
+      // if (
+      //   data.message.trim().length > 0 &&
+      //   LAST_CLI_TOPIC != data.topic &&
+      //   LAST_CLI_TOPIC != null
+      // ) {
+      //   console.log(' # '.cyan + (data.topic + ': ').magenta)
+      //   LAST_CLI_TOPIC = data.topic
+      // }
 
-      if (logger.options.show_level !== false) {
-        msg = `[${colorize_by_level(
-          LOG_LEVELS.get_name(log_level).padStart(5, ' '),
-          log_level,
-          logger.options.log_level_colors
-        )}]${msg}`
-      }
+      const msg_parts = []
 
       if (logger.options.show_timestamp !== false)
-        msg = `[${moment().toISOString(true)}]${msg}`
+        msg_parts.push(`[${moment().toISOString(true)}]`)
 
-      return msg
+      if (logger.options.show_level !== false)
+        msg_parts.push(
+          `[${colorize_by_level(
+            LOG_LEVELS.get_name(log_level).padStart(5, ' '),
+            log_level,
+            logger.options.log_level_colors
+          )}]`
+        )
+
+      if (data.topic != null && data.topic.trim() != '')
+        msg_parts.push(`[${data.topic.magenta}]`)
+
+      if (data.symbol != null)
+        msg_parts.push(
+          colorize_by_level(
+            data.symbol,
+            log_level,
+            logger.options.log_level_colors
+          )
+        )
+
+      msg_parts.push(
+        colorize_by_level(
+          data.message,
+          log_level,
+          logger.options.log_level_message_colors
+        )
+      )
+      return msg_parts.join('')
     },
 }
 
@@ -329,6 +346,19 @@ class Logger {
       topic: topic,
       symbol: symbol,
     })
+  }
+
+  /**
+   * Creates a new logger from the current logger.
+   * @param {string} topic The new inner topic
+   * @param {LOGGER_DEFAULT_OPTIONS} options The options
+   * @param {boolean} prefix_with_current_topic If true, prefix with current logger topic.
+   */
+  create(topic = null, options = null, prefix_with_current_topic = true) {
+    const topics = [topic]
+    if (prefix_with_current_topic) topics.unshift(this.topic)
+    topic = topics.filter((t) => t != null && t.trim() != '').join('-')
+    return new Logger(topic, (options = {...this.options, ...(options || {})}))
   }
 }
 

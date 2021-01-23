@@ -63,11 +63,6 @@ const doArgs = {
 
 const do_something = cli.new('do something', null)
 
-if (a == 3) {
-} else {
-  console.log('lasd')
-}
-
 do_something.on(
   'special',
   (args) => {
