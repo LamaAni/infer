@@ -1,5 +1,5 @@
 const path = require('path')
-const log = new (require('./logger/Logger'))('debug')
+const log = new (require('./logger/Logger'))('omap')
 const Cli = require('./Cli')
 const CliArgument = require('./CliArgument')
 
@@ -25,18 +25,15 @@ class CLIObjectMap {
   }
 
   async do_something() {
-    log.info(this.lama)
+    log.info(this.lama || 'unknown value!!')
   }
 }
 
 const omap = new CLIObjectMap()
 new Cli({args: omap})
-  .default(() => {
-    throw new Error('error')
-    console.log('lama')
-  })
+  .default(omap.do_something)
   .showHelp()
-  .parse([])
+  .parse(['--lama', '1234'])
   .catch((err) => {
     console.error(err)
     process.exit(1)

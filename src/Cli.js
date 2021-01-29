@@ -576,7 +576,9 @@ class Cli {
     // loading default values to args.
     if (parse_options.invoke && options.action != null) {
       this.Context.emit('invoke', options.action, args)
-      await options.action(args)
+      await (options.action.call
+        ? options.action.call(args)
+        : options.action(args))
     }
 
     return {command: command.join(' '), options, args}
