@@ -23,13 +23,19 @@ class CLIObjectMap {
       description: 'The arg',
     }
   }
+
+  async do_something() {
+    log.info(this.lama)
+  }
 }
 
-new Cli(new CLIObjectMap())
+const omap = new CLIObjectMap()
+new Cli({args: omap})
   .default(() => {
     throw new Error('error')
     console.log('lama')
   })
+  .showHelp()
   .parse([])
   .catch((err) => {
     console.error(err)

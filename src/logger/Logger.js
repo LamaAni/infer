@@ -134,7 +134,7 @@ const LOGGING_FORMATTERS = {
      */
     (logger, data) => {
       log_level = LOG_LEVELS.get_value(data.level)
-      if (LOG_LEVELS.get_value(logger.level) > log_level) return
+      if (LOG_LEVELS.get_value(logger.level) > log_level) return null
 
       data.message = data.message || ''
       data.message =
@@ -291,7 +291,11 @@ class Logger {
 
     let formatter = LOGGING_FORMATTERS[this.formatter] || LOGGING_FORMATTERS.cli
 
-    this.print(formatter(this, data), data.level)
+    const printed_value = formatter(this, data)
+
+    if (printed_value == null) return
+
+    this.print(printed_value, data.level)
   }
 
   info(msg, symbol = null, topic = null) {

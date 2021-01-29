@@ -56,6 +56,8 @@ class Cli {
    * @param {string} param.command_prefix the command prefix to add to any command. Defaults to ""
    * @param {string} param.command_postfix the command prefix to add to any command. Defaults to ""
    * @param {Logger} param.logger The cli logger to use.
+   * @param {Object<string,CliArgument>} param.args The object that contains the args. See CliArgument documentation.
+   * @param {(args:object)=>{}} default_action The action to be called when this cli triggers. Will override options.action.
    * @param {CliContext} param.context The cli context to use (configuration and common data). Will
    * override {name, logger}
    * will be created if null.
@@ -66,6 +68,8 @@ class Cli {
     command_postfix = null,
     context = null,
     logger = null,
+    args = null,
+    default_action = null,
   } = {}) {
     /**
      * @type {string} The command prefix to add to any command that has been set.
@@ -80,7 +84,10 @@ class Cli {
      * @type {CliContext} The collection of all commands
      * and configuration of the cli.
      */
-    this.Context = context || new CliContext({ name: name, logger: logger })
+    this.Context = context || new CliContext({name: name, logger: logger})
+
+    if (args != null || default_action != null)
+      this.default(default_action, args)
   }
 
   /**
@@ -143,23 +150,33 @@ class Cli {
    * @param {string} command The command to set
    * @param {Object<string,CliArgument>} args The object that contains the args. See CliArgument documentation.
    * @param {CliCommandOptions} options
+   * @param {boolean} reset_options
    * @returns {Cli} [this]
    */
-  set(command, args = null, options = null) {
+  set(command, args = null, options = null, reset_options = true) {
     // compose the new command
     command = this.__composeFullCommand(command)
-    const command_options = new CliCommandOptions()
 
-    CliContext.assertCommandText(command)
+    let command_options = options
 
-    // extend the options object if needed.
-    if (options != null) {
-      extend(command_options, options)
+    if (
+      options == null ||
+      !(options instanceof CliCommandOptions) ||
+      reset_options
+    ) {
+      command_options = new CliCommandOptions()
+
+      // extend the options object if needed.
+      if (options != null) {
+        extend(command_options, options)
+      }
     }
 
     ;(Array.isArray(args) ? args : [args]).forEach((args_obj) => {
       command_options.loadFromObject(args_obj)
     })
+
+    CliContext.assertCommandText(command)
 
     this.Context.setOptions(command, command_options)
     this.Context.emit('command_added', command, command_options)
@@ -208,9 +225,9 @@ class Cli {
    * @returns {Cli} [this]
    */
   default(action, args = null, options = null) {
-    options = options || {}
+    options = options || this.get('').Options || {}
     options.action = action
-    return this.set(null, args, options)
+    return this.set(null, args, options, args != null)
   }
 
   /**
@@ -234,7 +251,7 @@ class Cli {
    */
   __parseCommandArgs(raw_argv, add_parent_options = true) {
     this.Context.emit('pre_parse')
-    let { command, options, parents, unmatched } = this.Context.find(raw_argv)
+    let {command, options, parents, unmatched} = this.Context.find(raw_argv)
 
     if (options != null) {
       options = options.clone()
@@ -368,7 +385,7 @@ class Cli {
         .filter((ca) => ca.type == 'transfer')
         .forEach((ca) => transfer.forEach((val) => assign(ca, val)))
 
-    return { assignments, overflow, transfer, unknown_names }
+    return {assignments, overflow, transfer, unknown_names}
   }
 
   /**
@@ -396,7 +413,7 @@ class Cli {
   ) {
     // collecting basic options.
     parse_options = extend({}, DEFUALT_PARSE_OPTIONS, parse_options)
-    const { command, options, unmatched } = this.__parseCommandArgs(argv)
+    const {command, options, unmatched} = this.__parseCommandArgs(argv)
 
     const call_command_not_found = () => {
       // command not found.
@@ -445,11 +462,10 @@ class Cli {
     for (const ca of all_env_args) await ca.reset()
 
     // reset all optional arguments if options are found.
-    const {
-      assignments,
-      overflow,
-      unknown_names,
-    } = this.__parseAssignArguments(options, unmatched)
+    const {assignments, overflow, unknown_names} = this.__parseAssignArguments(
+      options,
+      unmatched
+    )
 
     // check if there is any remainder.
     const positional_args = options.arguments.filter(
@@ -563,7 +579,7 @@ class Cli {
       await options.action(args)
     }
 
-    return { command: command.join(' '), options, args }
+    return {command: command.join(' '), options, args}
   }
 
   /**
@@ -580,7 +596,7 @@ class Cli {
     formatter = null,
     show_parent_options = true
   ) {
-    const { command, options } = this.__parseCommandArgs(
+    const {command, options} = this.__parseCommandArgs(
       command_text,
       show_parent_options
     )
