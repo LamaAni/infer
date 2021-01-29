@@ -217,6 +217,14 @@ class Cli {
     return this.get(command)
   }
 
+  _wrap_action(action) {
+    return action != null
+      ? async (...args) => {
+          return await action(...args)
+        }
+      : null
+  }
+
   /**
    * Sets the default action for this cli, equivalent to set(null, args, {action:action})
    * @param {(args:object)=>{}} action The action to be called when this cli triggers. Will override options.action.
@@ -226,7 +234,7 @@ class Cli {
    */
   default(action, args = null, options = null) {
     options = options || this.get('').Options || {}
-    options.action = (...args) => action(...args)
+    options.action = this._wrap_action(action)
     return this.set(null, args, options, args != null)
   }
 
@@ -240,7 +248,7 @@ class Cli {
    */
   on(command, action, args, options) {
     options = options || {}
-    options.action = (...args) => action(...args)
+    options.action = this._wrap_action(action)
     this.set(command, args, options)
   }
 
@@ -576,9 +584,7 @@ class Cli {
     // loading default values to args.
     if (parse_options.invoke && options.action != null) {
       this.Context.emit('invoke', options.action, args)
-      await (options.action.call
-        ? options.action.call(args)
-        : options.action(args))
+      await options.action(args)
     }
 
     return {command: command.join(' '), options, args}
