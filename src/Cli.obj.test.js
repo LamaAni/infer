@@ -26,6 +26,7 @@ class CLIObjectMap {
 
   async do_something() {
     log.info(this.lama || 'unknown value!!')
+    throw new Error('Lama!!')
   }
 }
 
