@@ -226,7 +226,7 @@ class Cli {
    */
   default(action, args = null, options = null) {
     options = options || this.get('').Options || {}
-    options.action = action
+    options.action = (...args) => action(...args)
     return this.set(null, args, options, args != null)
   }
 
@@ -240,7 +240,7 @@ class Cli {
    */
   on(command, action, args, options) {
     options = options || {}
-    options.action = action
+    options.action = (...args) => action(...args)
     this.set(command, args, options)
   }
 

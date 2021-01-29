@@ -1,4 +1,4 @@
-const { Pattern } = require('./textops/text_matching')
+const {Pattern} = require('./textops/text_matching')
 
 /**
  * @typedef {import('./Cli')} Cli
@@ -256,7 +256,7 @@ class CliArgument {
             this.value = value
           }
           // not an array but a value.
-          else {
+          else if (value != null) {
             if (!Array.isArray(this.value)) this.value = []
             this.value.push(await parse_value())
           }
