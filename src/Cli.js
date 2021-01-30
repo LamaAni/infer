@@ -172,9 +172,13 @@ class Cli {
       }
     }
 
-    ;(Array.isArray(args) ? args : [args]).forEach((args_obj) => {
-      command_options.loadFromObject(args_obj)
-    })
+    if (args != null) {
+      ;(Array.isArray(args) ? args : [args]).forEach((args_obj) => {
+        command_options.loadFromObject(args_obj)
+        if (command_options.action_context == null)
+          command_options.action_context = args_obj
+      })
+    }
 
     CliContext.assertCommandText(command)
 
@@ -217,14 +221,6 @@ class Cli {
     return this.get(command)
   }
 
-  _wrap_action(action) {
-    return action != null
-      ? async (...args) => {
-          return await action(...args)
-        }
-      : null
-  }
-
   /**
    * Sets the default action for this cli, equivalent to set(null, args, {action:action})
    * @param {(args:object)=>{}} action The action to be called when this cli triggers. Will override options.action.
@@ -234,7 +230,7 @@ class Cli {
    */
   default(action, args = null, options = null) {
     options = options || this.get('').Options || {}
-    options.action = this._wrap_action(action)
+    options.action = action
     return this.set(null, args, options, args != null)
   }
 
@@ -248,7 +244,7 @@ class Cli {
    */
   on(command, action, args, options) {
     options = options || {}
-    options.action = this._wrap_action(action)
+    options.action = actionF
     this.set(command, args, options)
   }
 
@@ -584,7 +580,7 @@ class Cli {
     // loading default values to args.
     if (parse_options.invoke && options.action != null) {
       this.Context.emit('invoke', options.action, args)
-      await options.action(args)
+      await options.action.call(options.action_context || this, args)
     }
 
     return {command: command.join(' '), options, args}

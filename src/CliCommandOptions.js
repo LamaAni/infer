@@ -40,6 +40,11 @@ class CliCommandOptions {
      * @type {boolean} If true then inherit all parent named options.
      */
     this.inheritParentNamedOptions = true
+
+    /**
+     * @type {Object}
+     */
+    this.action_context = null
   }
 
   /**

@@ -24,9 +24,10 @@ class CLIObjectMap {
     }
   }
 
-  async do_something() {
-    log.info(this.lama || 'unknown value!!')
-    throw new Error('Lama!!')
+  async do_something({lama}) {
+    log.info(lama || 'unknown value!!')
+    log.info(this.kka || 'unknown value!!')
+    throw new Error('Valid error')
   }
 }
 
@@ -34,8 +35,10 @@ const omap = new CLIObjectMap()
 new Cli({args: omap})
   .default(omap.do_something)
   .showHelp()
-  .parse(['--lama', '1234'])
+  .parse(['--lama', '1234', '--kka', '22'])
   .catch((err) => {
-    console.error(err)
-    process.exit(1)
+    if (err.message != 'Valid error') {
+      console.error(err)
+      process.exit(1)
+    }
   })
