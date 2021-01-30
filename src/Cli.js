@@ -244,7 +244,7 @@ class Cli {
    */
   on(command, action, args, options) {
     options = options || {}
-    options.action = actionF
+    options.action = action
     this.set(command, args, options)
   }
 
