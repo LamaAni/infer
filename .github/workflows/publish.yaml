@@ -22,8 +22,8 @@ jobs:
           scope: '@lamaani'
       - run: |
           echo "Publishing version ${{steps.args.outputs.version}}" &&
-          npm config set user.email "actions@no-a-server.com" &&
-          npm config set user.name "github actions" &&
+          git config --global user.email "actions@no-a-server.com" &&
+          git config --global user.name "github actions" &&
           npm version '${{steps.args.outputs.version}}' &&
           npm publish
         env:
