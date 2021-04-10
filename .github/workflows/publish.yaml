@@ -19,10 +19,12 @@ jobs:
         with:
           node-version: '12.x'
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@octocat'
+          scope: '@lamaani'
       - run: |
           echo "Publishing version ${{steps.args.outputs.version}}" &&
-          npm version --no-git-tag-version '${{steps.args.outputs.version}}' &&
+          npm config set user.email "actions@no-a-server.com" &&
+          npm config set user.name "github actions" &&
+          npm version '${{steps.args.outputs.version}}' &&
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
