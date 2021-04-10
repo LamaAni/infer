@@ -24,10 +24,10 @@ jobs:
           echo "Publishing version ${{steps.args.outputs.version}}" &&
           git config --global user.email "actions@no-a-server.com" &&
           git config --global user.name "github actions" &&
-          npm version '${{steps.args.outputs.version}}' &&
-          npm publish && 
           git fetch &&
           git checkout main &&
+          npm version '${{steps.args.outputs.version}}' &&
+          npm publish && 
           git push origin HEAD
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
