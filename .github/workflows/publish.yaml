@@ -1,4 +1,7 @@
 on:
+  push:
+    branches:
+      - main
   release:
     types: [created]
 jobs:
@@ -20,7 +23,9 @@ jobs:
           node-version: '12.x'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@octocat'
-      - run: npm install
-      - run: npm version '${steps.args.outputs.version}' && npm publish
+      - run: |
+          echo "Publishing version ${steps.args.outputs.version}" &&
+          npm version '${steps.args.outputs.version}' &&
+          echo "skipped"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
