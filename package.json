@@ -1,6 +1,6 @@
 {
   "name": "@lamaani/infer",
-  "version": "0.0.34",
+  "version": "0.1.7",
   "description": "Yet another cli command line tool; with minimal definitions, colors and proper help prints.",
   "main": "src/index.js",
   "repository": {
