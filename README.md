@@ -12,6 +12,12 @@ Package includes:
 
 ## BETA
 
+## Install
+
+```shell
+npm install LamaAni/ZCli#main
+```
+
 ## TL;DR
 
 To define a simple cli,
