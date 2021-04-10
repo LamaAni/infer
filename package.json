@@ -28,6 +28,7 @@
   "homepage": "https://github.com/LamaAni/ZCli#readme",
   "dependencies": {
     "assert": "^2.0.0",
+    "cd": "^0.3.3",
     "colors": "^1.4.0",
     "extend": "^3.0.2",
     "js-yaml": "^3.14.0",

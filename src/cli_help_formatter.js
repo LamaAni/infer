@@ -118,10 +118,10 @@ function cli_help_formatter(command, options, cli) {
   /** @type {Object<string,CliArgument[]>} */
   const envs = {}
   options.arguments
-    .filter((ca) => ca.enviromentVariable != null)
+    .filter((ca) => ca.environmentVariable != null)
     .forEach((ca) => {
-      envs[ca.enviromentVariable] = envs[ca.enviromentVariable] || []
-      envs[ca.enviromentVariable].push(ca)
+      envs[ca.environmentVariable] = envs[ca.environmentVariable] || []
+      envs[ca.environmentVariable].push(ca)
     })
 
   // finding child commands.

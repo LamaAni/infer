@@ -290,7 +290,7 @@ class CliConfigCommand extends CliCommandOptions {
             ).cyan,
             print_cli_argument_aliases(this.command_cli, ca, false, false)
               .yellow,
-            ca.enviromentVariable == null ? '' : ca.enviromentVariable.magenta,
+            ca.environmentVariable == null ? '' : ca.environmentVariable.magenta,
             ca.description
           )
         })

@@ -65,7 +65,7 @@ class CliArgument {
     /**
      * @type {string} Environment variable name.
      */
-    this.enviromentVariable = this.type == 'env' ? field_name : null
+    this.environmentVariable = this.type == 'env' ? field_name : null
 
     /**
      * @type {object} The parent object that is associated
@@ -134,6 +134,22 @@ class CliArgument {
   }
 
   /**
+   * Old typeo
+   * @deprecated
+   */
+  get enviromentVariable() {
+    return this.environmentVariable
+  }
+
+  /**
+   * Old typeo
+   * @deprecated
+   */
+  set enviromentVariable(val) {
+    this.environmentVariable = val
+  }
+
+  /**
    * @type {boolean} If true, found env in the process.
    * (If reset is called twice then this value is incorrect)
    */
@@ -170,10 +186,10 @@ class CliArgument {
    */
   get env_value() {
     if (
-      typeof this.enviromentVariable == 'string' &&
-      process.env[this.enviromentVariable] != undefined
+      typeof this.environmentVariable == 'string' &&
+      process.env[this.environmentVariable] != undefined
     )
-      return process.env[this.enviromentVariable]
+      return process.env[this.environmentVariable]
     return null
   }
 
@@ -182,10 +198,10 @@ class CliArgument {
    */
   set_value_to_env() {
     if (this.doNotAssignToEnv) return
-    if (typeof this.enviromentVariable == 'string') {
+    if (typeof this.environmentVariable == 'string') {
       const val = this.value || this.default
-      if (val == null) delete process.env[this.enviromentVariable]
-      else process.env[this.enviromentVariable] = val
+      if (val == null) delete process.env[this.environmentVariable]
+      else process.env[this.environmentVariable] = val
       this.envHasBeenUpdated = true
     }
   }

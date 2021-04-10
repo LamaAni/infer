@@ -1,7 +1,13 @@
+const Cli = require('./Cli')
+const Logger = require('./logger/Logger')
+const CliArgument = require('./CliArgument')
+const CliConfigCommand = require('./CliConfigCommand')
+const CliComamndOptions = require('./CliCommandOptions')
+
 module.exports = {
-  Cli: require('./Cli'),
-  Logger: require('./logger/Logger'),
-  CliArgument: require('./CliArgument'),
-  CliConfigCommand: require('./CliConfigCommand'),
-  CliComamndOptions: require('./CliCommandOptions'),
+  Cli,
+  Logger,
+  CliArgument,
+  CliConfigCommand,
+  CliComamndOptions,
 }

@@ -16,7 +16,7 @@ const cli = new (require('./Cli'))({name: 'tester'}).default(
     },
     path: {
       description: 'The system path',
-      enviromentVariable: 'PATH',
+      environmentVariable: 'PATH',
     },
     post: {
       aliases: ['p'],
@@ -36,7 +36,7 @@ cli
     {
       path: {
         type: 'named',
-        enviromentVariable: 'PATH',
+        environmentVariable: 'PATH',
         description: 'The system path',
       },
       some_args: {

@@ -456,7 +456,7 @@ class Cli {
     if (options == null) return call_command_not_found()
 
     const all_env_args = this.Context.getAllArguments()
-      .filter((ca) => typeof ca.enviromentVariable == 'string')
+      .filter((ca) => typeof ca.environmentVariable == 'string')
       .filter((ca) => options.arguments.every((oca) => !Object.is(ca, oca)))
 
     // first reset all the arguments to assign.

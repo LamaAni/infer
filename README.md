@@ -4,7 +4,11 @@ This engine allows for the efficient, object centric auto generated
 command line interface, which allows one to save and load
 the configuration from a file.
 
-It also includes a custom logger
+Package includes:
+
+1. Cli engine, and supporting classes.
+2. Internal logger with contexts, common timestamp generation and a colors.
+3. [VSCode snippets](vscode_snippets.json)
 
 ## BETA
 
@@ -13,31 +17,34 @@ It also includes a custom logger
 To define a simple cli,
 
 ```javascript
-new (require('./index').Cli)({name: 'my_cli'})
-  .default(
-    async ({arg = null, flag = false}) => {
-      console.info('Recived argument: ' + arg)
-      console.info('Flag is: ' + flag)
+const {Cli} = require('ZCli')
+const cli = new Cli({name: 'my_cli'})
+
+// Add other commands
+cli.default(
+  async ({arg = null, flag = false}) => {
+    console.info('Recived argument: ' + arg)
+    console.info('Flag is: ' + flag)
+  },
+  {
+    arg: {
+      type: 'named',
+      aliases: ['a'],
     },
-    {
-      arg: {
-        type: 'named',
-        aliases: ['a'],
-      },
-      flag: {
-        type: 'flag',
-      },
-    }
-  )
-  .showHelp()
-  .parse(['-a', 'The argument'])
-  .catch((err) => {
+    flag: {
+      type: 'flag',
+    },
+  }
+)
+
+if (require.main == module)
+  cli.parse().catch((err) => {
     console.error(err)
-    process.exit(1)
+    process.exit(err.code || 1)
   })
 ```
 
-With inner commands,
+With cascading commands,
 
 ```javascript
 const Cli = require('@lamaani/zcli').Cli
@@ -72,14 +79,10 @@ cli.set(
   }
 )
 
-cli
-  .parse()
-  .then((rslt) => {
-    if (typeof rslt == 'number' && rslt > 0) process.exit(rslt)
-  })
-  .catch((err) => {
+if (require.main == module)
+  cli.parse().catch((err) => {
     console.error(err)
-    process.exit(1)
+    process.exit(err.code || 1)
   })
 ```
 
@@ -94,23 +97,22 @@ class MyRunner {
     // are cli arguments, and will
     // be set to this object when parsed.
 
+    /** Yet another argument */
+    this.arg = 'default value'
     /** @type {CliArgument} */
     this.__$arg = {
       type: 'named',
-      description: 'Some cli argument',
-      aliases: ['a'],
-      parse: (val) => val,
-      default: 'will be set to arg',
+      enviromentVariable: 'ZCLI_ARG',
+      default: this.arg,
+      description: 'Yet another argument',
     }
-    /** Will be set to this value */
-    this.arg = null
   }
 
   run(options) {}
 }
 ```
 
-To list options,
+To show help,
 
 ```shell
 my_app --help
@@ -172,7 +174,7 @@ myapp --flag run special --arg val case positional_1 positional_2
 | field_name          | The name of the field to update on the parent object                                                                                       | [any]                                                            | The field name in the object                                        |
 | match               | The name of the argument to match if `named` or `flag`                                                                                     | [any]                                                            | the field name, where any non letter or number is replaced with `-` |
 | default             | the default value.                                                                                                                         | [any]                                                            | [null]                                                              |
-| enviromentVariable  | The matching environment variable. If exits, will be taken instead of default. The env in nodejs will be updated to match the field value. | [string]                                                         | If `env` then the field_name, otherwise null                        |
+| environmentVariable | The matching environment variable. If exits, will be taken instead of default. The env in nodejs will be updated to match the field value. | [string]                                                         | If `env` then the field_name, otherwise null                        |
 | aliases             | Array, the possible command aliases                                                                                                        | string[]                                                         | []                                                                  |
 | description         | The argument description.                                                                                                                  | [string]                                                         | null                                                                |
 | parse               | Method: `(val)=>[any]`. Called before any assignment.                                                                                      | [function]                                                       | null                                                                |
