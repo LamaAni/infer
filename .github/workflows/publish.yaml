@@ -24,8 +24,8 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@octocat'
       - run: |
-          echo "Publishing version ${steps.args.outputs.version}" &&
-          npm version '${steps.args.outputs.version}' &&
+          echo "Publishing version ${{steps.args.outputs.version}}" &&
+          npm version '${{steps.args.outputs.version}}' &&
           echo "skipped"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
