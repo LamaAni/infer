@@ -26,6 +26,7 @@ jobs:
           git config --global user.name "github actions" &&
           npm version '${{steps.args.outputs.version}}' &&
           npm publish && 
+          git fetch &&
           git checkout main &&
           git push origin HEAD
         env:
