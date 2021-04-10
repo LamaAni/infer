@@ -1,4 +1,4 @@
-# An advanced cli generator for NodeJs
+# An advanced command line interface (CLI) generator for NodeJs
 
 An efficient, object centric auto generated command line interface.
 
