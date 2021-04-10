@@ -15,7 +15,7 @@ Package includes:
 ## Install
 
 ```shell
-npm install LamaAni/ZCli#main
+npm install lamaani/infer
 ```
 
 ## TL;DR
@@ -23,7 +23,7 @@ npm install LamaAni/ZCli#main
 To define a simple cli,
 
 ```javascript
-const {Cli} = require('ZCli')
+const {Cli} = require('@lamaani/infer')
 const cli = new Cli({name: 'my_cli'})
 
 // Add other commands
@@ -53,7 +53,7 @@ if (require.main == module)
 With cascading commands,
 
 ```javascript
-const Cli = require('@lamaani/zcli').Cli
+const Cli = require('@lamaani/infer').Cli
 const cli = new Cli({name: 'myapp'})
 const myrunner = new MyRunner()
 
@@ -95,7 +95,7 @@ if (require.main == module)
 Where MyRunner is,
 
 ```javascript
-/** @typedef {import('ZCli').CliArgument} CliArgument */
+/** @typedef {import('lamaani/infer').CliArgument} CliArgument */
 
 class MyRunner {
   constructor() {
@@ -108,7 +108,7 @@ class MyRunner {
     /** @type {CliArgument} */
     this.__$arg = {
       type: 'named',
-      enviromentVariable: 'ZCLI_ARG',
+      enviromentVariable: 'IFR_ARG',
       default: this.arg,
       description: 'Yet another argument',
     }
@@ -126,7 +126,7 @@ my_app --help
 
 ## Commands
 
-In `ZCli`, all commands are constructed as sentences, an example for a simple command would be,
+In `infer`, all commands are constructed as sentences, an example for a simple command would be,
 
 ```
 myapp run special case positional_1 --flag --arg val positional_2
@@ -193,7 +193,7 @@ myapp --flag run special --arg val case positional_1 positional_2
 To add a file configuration manager,
 
 ```javascript
-const cli = new (require('ZCli').Cli)()
+const cli = new (require('infer').Cli)()
 const fs = require('fs')
 const CliConfigCommand = require('zlib-cli/CliConfigCommand')
 
@@ -223,7 +223,7 @@ myapp config set run.special.case arg 42
 ## Logger
 
 ```javascript
-const Logger = require('ZCli').Logger
+const Logger = require('infer').Logger
 
 const logger = new Logger()
 const sub_logger = logger.create('sub')
@@ -277,5 +277,5 @@ Add an issue (or better submit PR) if you need these.
 # Licence
 
 Copyright ©
-`Zav Shotan` and other [contributors](https://github.com/LamaAni/ZCli/graphs/contributors).
+`Zav Shotan` and other [contributors](graphs/contributors).
 It is free software, released under the MIT licence, and may be redistributed under the terms specified in `LICENSE`.

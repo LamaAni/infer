@@ -1,31 +1,26 @@
 {
-  "name": "@LamaAni/zcli",
-  "version": "0.0.19",
+  "name": "@lamaani/infer",
+  "version": "0.0.21",
   "description": "Yet another cli command line tool; with minimal definitions, colors and proper help prints.",
   "main": "src/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LamaAni/ZCli.git"
+    "url": "https://github.com/LamaAni/infer.git"
   },
   "keywords": [
     "cli",
     "cli-tool",
     "command",
     "line",
-    "click"
+    "click",
+    "logger"
   ],
   "author": "Zav Shotan",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/LamaAni/ZCli/issues"
+    "url": "https://github.com/LamaAni/infer/issues"
   },
-  "homepage": "https://github.com/LamaAni/ZCli#readme",
+  "homepage": "https://github.com/LamaAni/infer#readme",
   "dependencies": {
     "assert": "^2.0.0",
     "cd": "^0.3.3",

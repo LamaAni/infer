@@ -9,7 +9,7 @@ class CLIObjectMap {
     this.__$lama = {
       type: 'named',
       default: this.lama,
-      environmentVariable: 'ZCLI_INPUT_lama',
+      environmentVariable: 'IFR_INPUT_lama',
       description: 'The arg',
     }
 
@@ -18,7 +18,7 @@ class CLIObjectMap {
     this.__$kka = {
       type: 'named',
       default: this.kka,
-      environmentVariable: 'ZCLI_INPUT_kka',
+      environmentVariable: 'IFR_INPUT_kka',
       description: 'The arg',
     }
 
@@ -30,7 +30,7 @@ class CLIObjectMap {
     this.__$_name_ = {
       name: 'name',
       type: 'named',
-      environmentVariable: 'ZCLI_ARG__name_',
+      environmentVariable: 'IFR_ARG__name_',
       default: this._name_,
       description: '__description__',
     }
@@ -40,7 +40,7 @@ class CLIObjectMap {
     /** @type {CliArgument} */
     this.__$the_value = {
       type: 'named',
-      environmentVariable: 'ZCLI_ARG_THE_VALUE',
+      environmentVariable: 'IFR_ARG_THE_VALUE',
       default: this.the_value,
       description: 'The description to use',
     }
@@ -50,7 +50,7 @@ class CLIObjectMap {
     /** @type {CliArgument} */
     this.__$the_value_2 = {
       type: 'named',
-      enviromentVariable: 'ZCLI_ARG_THE_VALUE_2',
+      enviromentVariable: 'IFR_ARG_THE_VALUE_2',
       default: this.the_value_2,
       description: 'Yet another value',
     }

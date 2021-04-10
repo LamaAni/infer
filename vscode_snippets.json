@@ -1,22 +1,22 @@
 {
-  "zcli_class_argument": {
-    "prefix": "@zcli-class-arg",
+  "infer_class_argument": {
+    "prefix": "@infer-class-arg",
     "body": [
       "/** ${3:description} */",
       "this.${1:name} = '${2:value}'",
       "/** @type {CliArgument} */",
       "this.__$${1:name} = {",
       "  type: 'named',",
-      "  environmentVariable: 'ZCLI_ARG_${1/(.*)/${1:/upcase}/}',",
+      "  environmentVariable: 'IFR_${1/(.*)/${1:/upcase}/}',",
       "  default: this.${1:name},",
       "  description: '${3:description}',",
       "}"
     ]
   },
-  "zcli_simple_command_line": {
-    "prefix": "@zcli-simple-command-line",
+  "infer_simple_command_line": {
+    "prefix": "@infer-simple-command-line",
     "body": [
-      "const {Cli} = require('ZCli')",
+      "const {Cli} = require('infer')",
       "const cli = new Cli({name: '${1:name}'})",
       "cli.default(() => {",
       "  // The default action",
@@ -26,13 +26,13 @@
       "",
       "if (require.main == module)",
       "  cli.parse().catch((err) => {",
-      "	console.error(err)",
-      "	process.exit(err.code || 1)",
-      "  })		"
+      "    console.error(err)",
+      "    process.exit(err.code || 1)",
+      "  })"
     ]
   },
-  "zcli_oo_command_line_parser": {
-    "prefix": "@zcli-oo-command-line-parser",
+  "infer_oo_command_line_parser": {
+    "prefix": "@infer-oo-command-line-parser",
     "body": [
       "const {Cli} = require('../src/index')",
       "",
@@ -44,7 +44,7 @@
       "    /** @type {CliArgument} */",
       "    this.__$arg = {",
       "    type: 'named',",
-      "    environmentVariable: 'ZCLI_ARG_ARG',",
+      "    environmentVariable: 'IFR_ARG',",
       "    default: this.arg,",
       "    description: 'The argument that is passed to the object before run.',",
       "    }",
