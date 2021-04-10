@@ -25,6 +25,7 @@ jobs:
           git config --global user.email "actions@no-a-server.com" &&
           git config --global user.name "github actions" &&
           npm version '${{steps.args.outputs.version}}' &&
-          npm publish
+          npm publish && 
+          git push
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
