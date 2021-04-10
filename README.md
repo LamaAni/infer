@@ -1,14 +1,13 @@
-# A CLI tool with file/object configuration
+# An advanced cli generator for NodeJs
 
-This engine allows for the efficient, object centric auto generated
-command line interface, which allows one to save and load
-the configuration from a file.
+An efficient, object centric auto generated command line interface.
 
 Package includes:
 
 1. Cli engine, and supporting classes.
 2. Internal logger with contexts, common timestamp generation and a colors.
 3. [VSCode snippets](vscode_snippets.json)
+4. Load and save configuration from/to file.
 
 ## BETA
 
