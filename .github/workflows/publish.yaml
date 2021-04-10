@@ -26,6 +26,6 @@ jobs:
       - run: |
           echo "Publishing version ${{steps.args.outputs.version}}" &&
           npm version --no-git-tag-version '0.0.19' &&
-          echo "skipped"
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
